@@ -18,6 +18,6 @@ c) locate the studies for that patient, represent their findings in RADLEX in th
 d) aggragate the above resources on a single FHIR server with the above described Web page
 
 # Contents
-download_data.py		suite of classes to abstract RESTful calls to image archives
-read_dump.py			class to read the JSON dump from a dbase after it annotates an Archive (should include findings)
-FHIRmaker.py				class to call the above 2, and based on info create Patient and Report FHIR objects
+download_data.py	suite of classes to abstract RESTful calls to image archives
+read_dump.py			class to read JSON dump of a dbase after it annotates an Archive (should include findings)
+FHIRmaker.py			class to call the above 2, and based on info create Patient and Report FHIR objects
