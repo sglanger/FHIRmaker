@@ -17,6 +17,14 @@ b) determine (via numerous methods) the patient conditions and list them in the 
 c) locate the studies for that patient, represent their findings in RADLEX in the Diagnostic Report resource and then
 d) aggragate the above resources on a single FHIR server with the above described Web page
 
+# Status
+Week 1: created the first 3 files indicated below, validating FHIR object output
+
+# To Dos
+<br>1) send FHIR objects to FHIR git repo (manually for now)
+<br>2) validate (with download_data.py) the "get" functions work as expected on FHIR server
+<br>3) build the web page
+
 # Contents
 <br>download_data.py	suite of classes to abstract RESTful calls to image archives
 <br>read_dump.py			class to read JSON dump of a dbase after it annotates an Archive (should include findings)
