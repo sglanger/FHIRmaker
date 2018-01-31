@@ -26,7 +26,7 @@ Week 1: created the first 3 files indicated below, validating FHIR object output
 <br>3) build the web page
 
 # Contents
-<br>download_data.py	suite of classes to abstract RESTful calls to image archives
-<br>read_dump.py			class to read JSON dump of a dbase after it annotates an Archive (should include findings)
-<br>FHIRmaker.py			class to call the above 2, and based on info create Patient and Report FHIR objects
+<br>download_data.py ::	suite of classes to abstract RESTful calls to image archives
+<br>read_dump.py ::			class to read JSON dump of a dbase after it annotates an Archive (should include findings)
+<br>FHIRmaker.py ::			class to call the above 2, and based on info create Patient and Report FHIR objects
 
