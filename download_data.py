@@ -171,27 +171,25 @@ class tcia :
 	api_key = 'get your own'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
 
+	# TCIA uses older server where all REST options must be URL encoded
+	# cannot use "headers" like above
+
 	def getSeries(self, UID):
 	#######################################
 	# Purpose: get the zip file of the series
 	#		referenced by the series UID
 	###################################
 		mod = 'download_data.py:TCGA:getSeries'
-		addon= '/getImage/' + UID
+		addon= '/getImage?SeriesInstanceUID=' + UID + '&format=zip&api_key=' + self.api_key
 
 		url1 = self.url + addon
-		print url
+		print url1
 
 		# https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide
 		# https://github.com/TCIA-Community/TCIA-API-SDK/tree/master/tcia-rest-client-python
 
 		import requests
-		headers = {
-    		'Accept': "application/zip",
-    		'apikey': self.api_key
-    		}
-
-		response = requests.request("GET", url1, headers=headers)
+		response = requests.request("GET", url1, headers="")
 		return  response.text
 
 	def getSeriesUIDs(self, UID):
@@ -200,19 +198,15 @@ class tcia :
 	#		series under the studyUID
 	###################################
 		mod = 'download_data.py:TCGA:getSeries'
-		addon= '/getSeries/StudyInstanceUID/' + UID
+		addon= '/getSeries?StudyInstanceUID=' + UID + '&format=json&api_key=' + self.api_key
+		#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
+
 		url1 = self.url + addon
-		print url
+		print url1
 	
 		import requests
-		headers = {
-    		'Accept': "application/csv",
-    		'apikey': self.api_key
-    		}
-
-		response = requests.request("GET", url1, headers=headers)
+		response = requests.request("GET", url1, headers="")
 		return  response.text
-
 
 
 if __name__ == '__main__':
@@ -229,11 +223,14 @@ if __name__ == '__main__':
 	from download_data import tcia
 	os.system('clear')
 
-	source = hackathonFHIR()
-	ret = source.getPatient('siimsally')
-	print ret	
-	print "-----------------------"
-	ret = source.getReports('siimsally')
+	#source = hackathonFHIR()
+	#ret = source.getPatient('siimsally')
+	#print ret	
+	#print "-----------------------"
+	#ret = source.getReports('siimsally')
+	
+	source = tcia()
+	ret = source.getSeriesUIDs ('1.3.6.1.4.1.14519.5.2.1.3344.4008.108477552695034703985419023766')
 	print ret	
 
 	exit (0)
