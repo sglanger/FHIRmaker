@@ -199,7 +199,6 @@ class tcia :
 	###################################
 		mod = 'download_data.py:TCGA:getSeries'
 		addon= '/getSeries?StudyInstanceUID=' + UID + '&format=json&api_key=' + self.api_key
-		#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
 
 		url1 = self.url + addon
 		print url1
