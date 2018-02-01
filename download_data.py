@@ -199,13 +199,27 @@ class tcia :
 	###################################
 		mod = 'download_data.py:TCGA:getSeries'
 		addon= '/getSeries?StudyInstanceUID=' + UID + '&format=json&api_key=' + self.api_key
-
+		array = []
 		url1 = self.url + addon
 		print url1
-	
+
 		import requests
-		response = requests.request("GET", url1, headers="")
-		return  response.text
+		resp = requests.request("GET", url1, headers="")
+		buf = resp.text
+
+		if (len(buf) < 10 ) : 
+			return array
+		else: 
+			end = 0
+			while  (end < len(buf)) :
+				start = buf.find('{') + 22
+				end = start + 64
+				UID = buf[start:end]
+				# print UID
+				array.append(UID)
+				buf = buf[end:]
+
+		return  array
 
 
 if __name__ == '__main__':
