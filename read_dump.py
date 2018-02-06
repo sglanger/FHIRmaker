@@ -77,7 +77,7 @@ class mdAI :
 
 			buf2 = buf2[end:]
 			cnt =cnt + 1
-			if (cnt > 2) : break
+			if (cnt > 4) : break
 
 		return 0
 
@@ -97,8 +97,10 @@ class mdAI :
 				print "study " + UID
 				if ('all' in lists) :
 					fp =  open(pDir + '/' + UID + '/allSeries', 'r')
+					start = 3
 				else:
 					fp =  open(pDir + '/' + UID + '/annotatedSeries', 'r')
+					start = 2
 
 				res = fp.readlines()
 				fp.close()
@@ -107,14 +109,14 @@ class mdAI :
 				#  and optionally a Zip  of the whole series for mdAI
 				if not (os.path.isdir(pDir + '/' + UID + '/DCM')) :	os.system('mkdir ' + pDir + '/' + UID + '/DCM')
 				for i in res[0].split(',') :
-					print '*** series ' + i[3:67]
+					print '*** series ' + i[start:67]
 					src = tcia()
-					resp = src.getImage( i[3:67])
-					with open(pDir + '/' + UID + '/DCM/' + UID + '.dcm', 'wb') as fp: fp.write(resp)
+					resp = src.getImage( i[start:67])
+					with open(pDir + '/' + UID + '/DCM/' + i[start:67] + '.dcm', 'wb') as fp: fp.write(resp)
 					fp.close()
 
-					#resp = src.getSeries( i[3:67])
-					#with open(pDir + '/' + UID + '/DCM/' + UID + '.zip', 'wb') as fp: fp.write(resp)
+					#resp = src.getSeries( i[start:67])
+					#with open(pDir + '/' + UID + '/DCM/' + i[start:67] + '.zip', 'wb') as fp: fp.write(resp)
 
 	
 		return 0
