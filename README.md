@@ -11,11 +11,11 @@ Lot's of people have image sets: NIH, other govt. agencies, foundations, etc. Th
 
 How?
 
-There are several apparoaches one can take; some are easy and autoamted, others requires lot's of human effort. But at the end of the day, the goal is to index every patient/study on public sites and
+There are several apparoaches one can take; some are easy and autoamted, others requires lot's of human effort. But at the end of the day, the goal is to index every patient/study on public sites and <p>
 a) create from that information a patient FHIR resource that matches the names used on the site
-b) determine (via numerous methods) the patient conditions and list them in the Patient resource then
-c) locate the studies for that patient, represent their findings in RADLEX in the Diagnostic Report resource and then
-d) aggragate the above resources on a single FHIR server with the above described Web page
+<br>b) determine (via numerous methods) the patient conditions and list them in the Patient resource then
+<br>c) locate the studies for that patient, represent their findings in RADLEX in the Diagnostic Report resource and then
+<br>d) aggragate the above resources on a single FHIR server with the above described Web page
 
 # Status
 Week 1: created the first 3 files indicated below, validating FHIR object output
