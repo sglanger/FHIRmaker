@@ -8,9 +8,8 @@
 #
 #
 ###############################################################
-import os, sys, commands, string, json
+import os, sys, commands, string, zipfile
 from download_data import tcia
-
 global ROOT
 
 class mdAI :
@@ -33,6 +32,7 @@ class mdAI :
 
 		fp = open ( ROOT + projectDump, 'r')
 		buf = fp.readlines()
+		fp.close
 
 		pDir = ROOT + projectDIR
 		if ( os.path.isdir(pDir) ):
@@ -45,6 +45,7 @@ class mdAI :
 		# seriesUID and build a list of All of them
 		buf2 = buf[0]
 		end = 0
+		cnt = 0
 		while ( end < len(buf2) ):
 			start = buf2.find('StudyInstanceUID') + 19
 			end  = start + 64
@@ -57,35 +58,86 @@ class mdAI :
 			if not (os.path.isdir(pDir + '/' + UID + '/allSeries') ) :
 				source = tcia()
 				allSeries = source.getSeriesUIDs(UID)
-				print allSeries
 				fw = open ( pDir + '/' + UID + '/allSeries', 'w')
 				fw.write(str(allSeries))
+				fw.close()
 
 			# next build the annotated_list by comparing All to the dump
+			if not (os.path.isdir(pDir + '/' + UID + '/annotatedSeries') ) :
+				array = []
+				fw = open (pDir + '/' + UID + '/allSeries', 'r')
+				buf3 = fw.readlines()
+				fw.close()
+				for i in buf3[0].split(',') : 
+					if (i[3:67] in  buf[0] ) : array.append(i[3:67])
 
-
-
-			# finally drop an image in each seriesFolder so that we have somethien to build FHIR from
-
+				fw = open ( pDir + '/' + UID + '/annotatedSeries', 'w')
+				fw.write(str(array))			
+				fw.close()
 
 			buf2 = buf2[end:]
+			cnt =cnt + 1
+			if (cnt > 2) : break
 
 		return 0
+
+	def getZips (self, project, lists) :
+	######################################
+	# Purpose: read the indicated list of 
+	# 	seriesUIDs and fetch zips for it
+	##########################################
+		mod = 'read_dump.py:mdAI:getZips'
+
+		pDir = ROOT + project
+		os.system('cd ' + pDir)
+
+		for root, dirs, files in os.walk(pDir)  :
+			for UID in dirs :
+				if not ( '.' in UID ) : break
+				print "study " + UID
+				if ('all' in lists) :
+					fp =  open(pDir + '/' + UID + '/allSeries', 'r')
+				else:
+					fp =  open(pDir + '/' + UID + '/annotatedSeries', 'r')
+
+				res = fp.readlines()
+				fp.close()
+
+				# now we are going to get a single image for the FHIRmaker
+				#  and optionally a Zip  of the whole series for mdAI
+				if not (os.path.isdir(pDir + '/' + UID + '/DCM')) :	os.system('mkdir ' + pDir + '/' + UID + '/DCM')
+				for i in res[0].split(',') :
+					print '*** series ' + i[3:67]
+					src = tcia()
+					resp = src.getImage( i[3:67])
+					with open(pDir + '/' + UID + '/DCM/' + UID + '.dcm', 'wb') as fp: fp.write(resp)
+					fp.close()
+
+					#resp = src.getSeries( i[3:67])
+					#with open(pDir + '/' + UID + '/DCM/' + UID + '.zip', 'wb') as fp: fp.write(resp)
+
+	
+		return 0
+
 
 if __name__ == '__main__':
 ############################# main ################
 # Purpose: figure out whose dump we are using and 
 #	use it to start crawling image arch
 #
-#
+#	This stub for unit testing
 ################################################
 	mod = 'read_dump.py'
 	os.system('clear')
 
 	ROOT = '/home/sgl02/code/py-code/mlcBuilder/'
 
+	# build lists of all series and annotaed series for the dump
 	ctr = mdAI()
-	res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
+	#res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
+
+	# then drop an image in each seriesFolder so that we have somethien to build FHIR from
+	res= ctr.getZips('tcia', 'all')
 
 	exit (0)
 

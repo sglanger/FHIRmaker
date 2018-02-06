@@ -6,16 +6,17 @@
 # Purpose: Abstract  all Web connections to various Archives into a class. 
 #	GIven a UID for a DICOM study, pull it down and write it to local disk
 #
-# External dependants: called by the mlcREADER
+# External dependants: called by the FHIRaker
+#						lib zipfile
+#						lib dicom (sudo pip install dicom)
 #
 # Usage: in most cases (exceptions are listed in the Class headers)
 #	> from download_data import Class
 #	> source=class()
 #	> study = source.getStudy(UID)
 #
-#	From this point the normal Python dbase API is used
+#	see _main_ for more
 #############################################################
-
 
 
 class hackathonFHIR :
@@ -25,7 +26,7 @@ class hackathonFHIR :
 # External dependants: 'sudo pip install requests"
 #
 ##################################################
-	api_key = 'get your own'
+	api_key = 'your-key'
 	url = 'http://api.hackathon.siim.org/fhir/'
 
 	def getPatients(self):
@@ -117,7 +118,7 @@ class hackathonDCM :
 # External dependants: 
 #
 ##################################################
-	api_key = 'get your own'
+	api_key = 'your-key'
 	url = 'http://api.hackathon.siim.org/dicomweb/'
 
 	def getStudies(self):
@@ -168,8 +169,9 @@ class tcia :
 #
 # External Requirments: 
 ##################################################
-	api_key = 'get your own'
+	api_key = 'your-key'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
+	#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
 
 	# TCIA uses older server where all REST options must be URL encoded
 	# cannot use "headers" like above
@@ -189,8 +191,38 @@ class tcia :
 		# https://github.com/TCIA-Community/TCIA-API-SDK/tree/master/tcia-rest-client-python
 
 		import requests
+		r = requests.get(url1, stream=True)
+		resp = r.content
+		return  resp
+
+
+	def getImage(self, UID):
+	#######################################
+	# Purpose: get a single image from the series
+	#		referenced by the series UID
+	###################################
+		mod = 'download_data.py:TCGA:getImage'
+		addon= '/getSOPInstanceUIDs?SeriesInstanceUID=' + UID + '&format=json&api_key=' + self.api_key
+		# example https://github.com/hilfikerp/TCIA-Python3-Downloader/blob/Menu-3.1/tciaclient.py
+
+		# 2 steps, first get the instance UIDs in the series 
+		url1 = self.url + addon
+		#print url1
+
+		import requests
 		response = requests.request("GET", url1, headers="")
-		return  response.text
+		buf = response.text
+		start = buf.find('sop_instance_uid') + 19
+		instanceUID = buf[start:86]
+
+		# then fetch the image using both the series and instance UIDs
+		addon='/getSingleImage?SeriesInstanceUID=' + UID + '&SOPInstanceUID=' + instanceUID  + '&api_key=' + self.api_key
+		url1 = self.url + addon
+		#print url1
+		r = requests.get(url1, stream=True)
+		resp = r.content
+		return resp
+
 
 	def getSeriesUIDs(self, UID):
 	#######################################
@@ -222,17 +254,17 @@ class tcia :
 		return  array
 
 
+
 if __name__ == '__main__':
 ############################# main ################
 # Purpose: Use command line args, get list of candidate
 #	exams from RSNA edge dbase
 #
-# ARgs: rsnaFETCH.py 
-# Caller: crontab?
+#  also this stub for unit testing
 ################################################
 	mod = 'download_data.py: hackathonDCM'
 
-	import os
+	import os, zipfile, dicom
 	from download_data import tcia
 	os.system('clear')
 
@@ -243,8 +275,11 @@ if __name__ == '__main__':
 	#ret = source.getReports('siimsally')
 	
 	source = tcia()
-	ret = source.getSeriesUIDs ('1.3.6.1.4.1.14519.5.2.1.3344.4008.108477552695034703985419023766')
-	print ret	
+	#ret = source.getSeriesUIDs ('1.3.6.1.4.1.14519.5.2.1.3344.4008.824746819228131664143570751388')
+	resp= source.getImage ('1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620') 
+	#resp = source.getSeries ('1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620') 
+	with open('img.dcm', 'wb') as fp: fp.write(resp)
+	fp.close()
 
 	exit (0)
 
