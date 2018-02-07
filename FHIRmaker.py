@@ -18,6 +18,9 @@
 #	directory they create
 ###################################################################
 import os, dicom, sys
+import json
+from pprint import pprint
+
 global projectDir, ROOT, DUMP, PROJECT
 
 
@@ -53,7 +56,6 @@ def makeFHIR(UID) :
 
 					# now make FHIR root directory
 					path = fhirRoot + '_' + fp.PatientName
-					print fp.PatientName
 					if not (os.path.isdir(path) ) : os.system('mkdir ' + path)
 
 					makePatient(fp, path)
@@ -64,7 +66,7 @@ def makeFHIR(UID) :
 	return 0
 
 
-def makePatient (fp, path) :
+def makePatient (img, path) :
 #############################################
 # Purpose: use the DCM image to get demographics
 #	to stuff the patient FHIR
@@ -74,16 +76,23 @@ def makePatient (fp, path) :
 	mod = 'FHIRmaker.py: makePatient'
 	skelDir = ROOT + 'skel/patient.json'
 
+	# json read examples https://stackoverflow.com/questions/2835559/parsing-values-from-a-json-file
+
 	if not (os.path.isdir(path + '/Patient') ) : 
 		os.system('mkdir ' + path + '/Patient') 
 		os.system('cp ' + skelDir + ' ' + path + '/Patient')
 
 	# now start stuffing patient.json
+	jsn = json.load(open(path + '/Patient/patient.json') )
+	print img.PatientName
+	print jsn['name'][0]['family'] 
+	print jsn['name'][0]['given']
+	print '******************'
 
 	return 0 
 
 
-def makeCondition (fp, path) :
+def makeCondition (img, path) :
 #############################################
 # Purpose: use the annotation dump (or other clues)
 #	to stuff the FHIR condition
@@ -97,7 +106,7 @@ def makeCondition (fp, path) :
 		os.system('mkdir ' + path + '/Condition') 
 		os.system('cp ' + skelDir + ' ' + path + '/Condition')
 
-	# now start stuffing patient.json
+	# now start stuffing condition.json
 
 	return 0 
 
@@ -164,7 +173,6 @@ if __name__ == '__main__':
 		for UID in dirs :
 			if not ('.' in UID) : break
 			res = makeFHIR(UID)
-			print res
 
 
 	exit(0)
