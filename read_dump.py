@@ -8,9 +8,9 @@
 #
 #
 ###############################################################
-import os, sys, commands, string, zipfile
+import os, string, zipfile
 from download_data import tcia
-global ROOT
+
 
 class mdAI :
 ###################################################
@@ -20,6 +20,19 @@ class mdAI :
 # External dependants: an mdAI JSON file
 #
 ##################################################
+
+	def init(self, direc):
+	######################################
+	# Purpose: if called by an external, set
+	#	global Vars
+	#	
+	########################################
+		mod = 'read_dump.py:mdAI:init'
+		global ROOT
+
+		ROOT = direc
+		return 0
+
 
 	def readDump(self, projectDIR, projectDump):
 	######################################
@@ -98,9 +111,11 @@ class mdAI :
 				if ('all' in lists) :
 					fp =  open(pDir + '/' + UID + '/allSeries', 'r')
 					start = 3
+					end = 67
 				else:
 					fp =  open(pDir + '/' + UID + '/annotatedSeries', 'r')
 					start = 2
+					end = 66
 
 				res = fp.readlines()
 				fp.close()
@@ -109,15 +124,14 @@ class mdAI :
 				#  and optionally a Zip  of the whole series for mdAI
 				if not (os.path.isdir(pDir + '/' + UID + '/DCM')) :	os.system('mkdir ' + pDir + '/' + UID + '/DCM')
 				for i in res[0].split(',') :
-					print '*** series ' + i[start:67]
+					print '*** series ' + i[start:end]
 					src = tcia()
-					resp = src.getImage( i[start:67])
-					with open(pDir + '/' + UID + '/DCM/' + i[start:67] + '.dcm', 'wb') as fp: fp.write(resp)
+					resp = src.getImage( i[start:end])
+					with open(pDir + '/' + UID + '/DCM/' + i[start:end] + '.dcm', 'wb') as fp: fp.write(resp)
 					fp.close()
 
 					#resp = src.getSeries( i[start:67])
-					#with open(pDir + '/' + UID + '/DCM/' + i[start:67] + '.zip', 'wb') as fp: fp.write(resp)
-
+					#with open(pDir + '/' + UID + '/DCM/' + i[start:end] + '.zip', 'wb') as fp: fp.write(resp)
 	
 		return 0
 
@@ -129,17 +143,16 @@ if __name__ == '__main__':
 #
 #	This stub for unit testing
 ################################################
-	mod = 'read_dump.py'
+	mod = 'read_dump.py: main'
 	os.system('clear')
-
-	ROOT = '/home/sgl02/code/py-code/mlcBuilder/'
 
 	# build lists of all series and annotaed series for the dump
 	ctr = mdAI()
-	#res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
+	res = ctr.init('/home/sgl02/code/py-code/mlcBuilder/')
+	res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
 
 	# then drop an image in each seriesFolder so that we have somethien to build FHIR from
-	res= ctr.getZips('tcia', 'all')
+	res= ctr.getZips('tcia', 'ann')
 
 	exit (0)
 

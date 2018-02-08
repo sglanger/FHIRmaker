@@ -30,6 +30,7 @@ def makeFHIR(UID) :
 #	pulled from an archve, then despatch builders
 #	for each FHIR resource
 #
+# dicom lib ref: http://pydicom.readthedocs.io/en/latest/pydicom_user_guide.html
 #########################################
 	mod = 'FHIRmaker.py: makeFHIR'
 	patID = ''
@@ -50,7 +51,7 @@ def makeFHIR(UID) :
 				if not ('.dcm' in img) : 
 					break
 				else:
-					# recall, we only need one img per series, after that can 'break'
+					# we need an img for Pat and Exam demogs
 					path = projectDir + '/' + UID + '/DCM/' + img
 					fp = dicom.read_file(path)
 
@@ -58,6 +59,8 @@ def makeFHIR(UID) :
 					path = fhirRoot + '_' + fp.PatientName
 					if not (os.path.isdir(path) ) : os.system('mkdir ' + path)
 
+					# now start making objects, only need 1 each for Pat and Cond
+					# but can have multiple reports objects
 					makePatient(fp, path)
 					makeCondition(fp, path)
 					makeDxReport(fp, path)
@@ -71,23 +74,39 @@ def makePatient (img, path) :
 # Purpose: use the DCM image to get demographics
 #	to stuff the patient FHIR
 #
-#
+#	Need to check and exit if object already done
 #########################################
 	mod = 'FHIRmaker.py: makePatient'
 	skelDir = ROOT + 'skel/patient.json'
 
 	# json read examples https://stackoverflow.com/questions/2835559/parsing-values-from-a-json-file
+	# insert update examples https://stackoverflow.com/questions/13949637/how-to-update-json-file-with-python#13949837
+
+	# check if this object is already done - exit if so
+	#if (os.path.isfile(path + '/Patient/done') ) : return 0
 
 	if not (os.path.isdir(path + '/Patient') ) : 
 		os.system('mkdir ' + path + '/Patient') 
 		os.system('cp ' + skelDir + ' ' + path + '/Patient')
 
-	# now start stuffing patient.json
-	jsn = json.load(open(path + '/Patient/patient.json') )
-	print img.PatientName
-	print jsn['name'][0]['family'] 
-	print jsn['name'][0]['given']
-	print '******************'
+	# now start stuffing patient.json - first open the stub
+	fp = open(path + '/Patient/patient.json', 'r')
+	jsn = json.load(fp)
+	fp.close()
+
+	# update buffer with demog from DCM image
+	jsn['name'][0]['family'] = img.PatientName
+
+	# write updates back to FHIR object
+	fp = open(path + '/Patient/patient.json', 'w+')
+	fp.write (json.dumps(jsn))
+	fp.close()
+
+	# now leave a clue that we have done this one
+	if not (os.path.isfile(path + '/Patient/done') ) :	
+		fp = open(path + '/Patient/done' , 'w')
+		fp.write ('done')
+		fp.close() 
 
 	return 0 
 
@@ -146,7 +165,7 @@ if __name__ == '__main__':
 	# use cmd line arg to locate projectDir
 	if len(sys.argv ) != 3 :
 		print "Incorrect Usage: Must include -project directory- and -dump file- No trailing /" 
-		exit(0)
+		exit(1)
 	else :
 		projectDir = ROOT + sys.argv[1]  
 		DUMP = sys.argv[2]
@@ -159,14 +178,14 @@ if __name__ == '__main__':
 		fp.close
 	except:
 		print 'DUmp file does not exist'
-		exit(0)
+		exit(1)
 
 	# now try to get into it
 	if (os.path.isdir(projectDir) ) :	
 		os.system('cd ' + projectDir)
 	else :
-		print "project directory does not exist " 
-		exit(0)	
+		print "project directory does not exist - use read_dump to create project " 
+		exit(1)	
 
 	# it exists, lets get to work
 	for root, dirs, files in os.walk(projectDir)  :
