@@ -31,14 +31,8 @@ def makeFHIR(UID) :
 #	pulled from an archve, then despatch builders
 #	for each FHIR resource
 #
-# dicom lib ref: http://pydicom.readthedocs.io/en/latest/pydicom_user_guide.html
 #########################################
 	mod = 'FHIRmaker.py: makeFHIR'
-	patID = ''
-	patGender = ''
-	patDOB = ''
-	ICD10 = ''
-	demogPat = { 'patID':patID , 'patGender':patGender , 'patDOB':patDOB , 'condition':ICD10 } 
 
 	fhirRoot = projectDir + '/' + UID + '/' + PROJECT
 
@@ -224,10 +218,10 @@ if __name__ == '__main__':
 		print "project directory does not exist - use read_dump to create project " 
 		# build lists of all series and annotaed series for the dump
 		ctr = mdAI()
-		res = ctr.init('/home/sgl02/code/py-code/mlcBuilder/')
-		res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
+		res = ctr.init(ROOT)
+		res = ctr.readDump(PROJECT , DUMP)
 		# then drop an image in each seriesFolder so that we have somethien to build FHIR from
-		res= ctr.getZips('tcia', 'ann')
+		res= ctr.getZips(DUMP, 'ann')
 		os.system('cd ' + projectDir)
 		#exit(1)	
 
