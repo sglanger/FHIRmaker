@@ -20,6 +20,7 @@
 import os, dicom, sys
 import json
 from pprint import pprint
+from read_dump import mdAI
 
 global projectDir, ROOT, DUMP, PROJECT
 
@@ -64,8 +65,7 @@ def makeFHIR(UID) :
 					makePatient(fp, path)
 					makeCondition(fp, path)
 					makeDxReport(fp, path)
-					break
-
+					
 	return 0
 
 
@@ -81,26 +81,28 @@ def makePatient (img, path) :
 
 	# json read examples https://stackoverflow.com/questions/2835559/parsing-values-from-a-json-file
 	# insert update examples https://stackoverflow.com/questions/13949637/how-to-update-json-file-with-python#13949837
+	# pydicom http://pydicom.readthedocs.io/en/latest/pydicom_user_guide.html
 
 	# check if this object is already done - exit if so
-	#if (os.path.isfile(path + '/Patient/done') ) : return 0
+	if (os.path.isfile(path + '/Patient/done') ) : return 0
 
-	if not (os.path.isdir(path + '/Patient') ) : 
-		os.system('mkdir ' + path + '/Patient') 
-		os.system('cp ' + skelDir + ' ' + path + '/Patient')
-
+	if not (os.path.isdir(path + '/Patient') ) : os.system('mkdir ' + path + '/Patient') 
 	# now start stuffing patient.json - first open the stub
-	fp = open(path + '/Patient/patient.json', 'r')
+	fp = open(skelDir, 'r')
 	jsn = json.load(fp)
 	fp.close()
 
 	# update buffer with demog from DCM image
 	jsn['name'][0]['family'] = img.PatientName
+	jsn['gender'] = img.PatientSex
+	jsn['birthDate'] = img.PatientBirthDate
+	jsn['id'] = img.PatientID
+
 
 	# write updates back to FHIR object
-	fp = open(path + '/Patient/patient.json', 'w+')
-	fp.write (json.dumps(jsn))
-	fp.close()
+	fq = open(path + '/Patient/patient.json', 'w')
+	fq.write (json.dumps(jsn, indent=2) )
+	fq.close()
 
 	# now leave a clue that we have done this one
 	if not (os.path.isfile(path + '/Patient/done') ) :	
@@ -118,33 +120,62 @@ def makeCondition (img, path) :
 #
 #
 #########################################
-	mod = 'FHIRmaker.py: makePatient'
+	mod = 'FHIRmaker.py: makeCondition'
 	skelDir = ROOT + 'skel/condition.json'
 
-	if not (os.path.isdir(path + '/Condition') ) : 
-		os.system('mkdir ' + path + '/Condition') 
-		os.system('cp ' + skelDir + ' ' + path + '/Condition')
+	# check if this object is already done - exit if so
+	#if (os.path.isfile(path + '/Condition/done') ) : return 0
 
+	if not (os.path.isdir(path + '/Condition') ) : 	os.system('mkdir ' + path + '/Condition') 
 	# now start stuffing condition.json
+	fp = open(skelDir, 'r')
+	jsn = json.load(fp)
+	fp.close()
+
+	# update buffer with demog from DCM image
+	jsn['patient']['reference'] = img.PatientID
+	jsn['id'] = img.PatientID
+	jsn['bodySite'][0]['text'] = img.BodyPartExamined
+
+	# and get Condition(s) from the Annotation dbase dump - for now fake it
+	jsn['code']['text'] = ' really sore liver'
+	jsn['code']['coding'][0]['display'] = 'really big lump'
+
+	# write updates back to FHIR object
+	fq = open(path + '/Condition/condition.json', 'w')
+	fq.write (json.dumps(jsn, indent=2) )
+	fq.close()
+
+	# now leave a clue that we have done this one
+	if not (os.path.isfile(path + '/Condition/done') ) :	
+		fp = open(path + '/Condition/done' , 'w')
+		fp.write ('done')
+		fp.close() 
 
 	return 0 
 
 
-def makeDxReport (fp, path) :
+def makeDxReport (img, path) :
 #############################################
 # Purpose: use the annotation dump to get the
 #	findings per study and stuff each Dx report
 #
-#
+#	UNlike the other 2 makes - this one can make
+#	numerous instances of Report objects
 #########################################
 	mod = 'FHIRmaker.py: makePatient'
 	skelDir = ROOT + 'skel/diagnosticReport.json'
 
-	if not (os.path.isdir(path + '/DiagnosticReport') ) : 
-		os.system('mkdir ' + path + '/DiagnosticReport') 
-		os.system('cp ' + skelDir + ' ' + path + '/DiagnosticReport')
 
+	if not (os.path.isdir(path + '/DiagnosticReport') ) : os.system('mkdir ' + path + '/DiagnosticReport') 
 	# now start stuffing patient.json
+	fp = open(skelDir, 'r')
+	jsn = json.load(fp)
+	fp.close()
+
+	# get finding(s) from the Annotation dbase dump
+
+
 
 	return 0 
 
@@ -185,7 +216,14 @@ if __name__ == '__main__':
 		os.system('cd ' + projectDir)
 	else :
 		print "project directory does not exist - use read_dump to create project " 
-		exit(1)	
+		# build lists of all series and annotaed series for the dump
+		ctr = mdAI()
+		res = ctr.init('/home/sgl02/code/py-code/mlcBuilder/')
+		res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
+		# then drop an image in each seriesFolder so that we have somethien to build FHIR from
+		res= ctr.getZips('tcia', 'ann')
+		os.system('cd ' + projectDir)
+		#exit(1)	
 
 	# it exists, lets get to work
 	for root, dirs, files in os.walk(projectDir)  :
