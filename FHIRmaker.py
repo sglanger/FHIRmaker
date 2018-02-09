@@ -166,7 +166,6 @@ def makeDxReport (img, path) :
 	mod = 'FHIRmaker.py: makePatient'
 	skelDir = ROOT + 'skel/diagnosticReport.json'
 
-
 	if not (os.path.isdir(path + '/DiagnosticReport') ) : os.system('mkdir ' + path + '/DiagnosticReport') 
 	# now start stuffing patient.json
 	fp = open(skelDir, 'r')
@@ -174,8 +173,15 @@ def makeDxReport (img, path) :
 	fp.close()
 
 	# get finding(s) from the Annotation dbase dump
-
-
+	jsn['id'] = img.StudyInstanceUID
+	jsn['identifier'][0]['value'] = img.AccessionNumber
+	jsn['code']['text'] = img.StudyDescription
+	jsn['subject']['reference'] = img.PatientID
+		
+	# write updates back to FHIR object
+	fq = open(path + '/DiagnosticReport/diagnosticReport_' + img.StudyInstanceUID + '.json', 'w')
+	fq.write (json.dumps(jsn, indent=2) )
+	fq.close()
 
 	return 0 
 
