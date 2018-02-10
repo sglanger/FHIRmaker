@@ -1,5 +1,5 @@
 # FHIRmaker
-crawl public medical imaging archives, create Patient and DiagnosticReport resources which in turn are discoverable via a FHIR API
+crawl public medical imaging archives, create Patient, Condition and DiagnosticReport resources which in turn are discoverable via a FHIR API
 
 # The Challenge
 Let's say you are a Machine Learning researcher in medical imaging. You have a Keras model you woudl like to try out on lots of high Res Lung CT images. Ideally the resulting data sets (training and test) would have a mix of normals and positive findings that mimic the real world statistics. If you do not work at Ginormous Hospital, how do you locate all the publically avaiable datasets that could help you - and how much time would it take?
@@ -11,7 +11,7 @@ Lot's of people have image sets: NIH, other govt. agencies, foundations, etc. Th
 
 How?
 
-There are several apparoaches one can take; some are easy and autoamted, others requires lot's of human effort. But at the end of the day, the goal is to index every patient/study on public sites and <p>
+There are several approaches one can take; some are easy and automated, others requires lot's of human effort. But at the end of the day, the goal is to index every patient/study on public sites and <p>
 a) create from that information a patient FHIR resource that matches the names used on the site
 <br>b) determine (via numerous methods) the patient conditions and list them in the Patient resource then
 <br>c) locate the studies for that patient, represent their findings in RADLEX in the Diagnostic Report resource and then

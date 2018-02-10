@@ -21,6 +21,7 @@ import os, dicom, sys
 import json
 from pprint import pprint
 from read_dump import mdAI
+from datetime import datetime
 
 global projectDir, ROOT, DUMP, PROJECT
 
@@ -193,6 +194,8 @@ if __name__ == '__main__':
 	os.system('clear')
 	ROOT = '/home/sgl02/code/py-code/mlcBuilder/'
 
+	t_start = datetime.now()
+
 	# use cmd line arg to locate projectDir
 	if len(sys.argv ) != 3 :
 		print "Incorrect Usage: Must include -project directory- and -dump file- No trailing /" 
@@ -216,6 +219,7 @@ if __name__ == '__main__':
 		os.system('cd ' + projectDir)
 	else :
 		print "project directory does not exist - use read_dump to create project " 
+		#exit(1)
 		# build lists of all series and annotaed series for the dump
 		ctr = mdAI()
 		res = ctr.init(ROOT)
@@ -223,13 +227,19 @@ if __name__ == '__main__':
 		# then drop an image in each seriesFolder so that we have somethien to build FHIR from
 		res= ctr.getZips(PROJECT, 'ann')
 		os.system('cd ' + projectDir)
-		#exit(1)	
 
-	# it exists, lets get to work
+	# it exists, let's light some FHIRs
 	for root, dirs, files in os.walk(projectDir)  :
 		for UID in dirs :
 			if not ('.' in UID) : break
 			res = makeFHIR(UID)
 
+	# and last - we consolidate all the study FHIR objects under patient folders 
+	# in HACKATHON + projectDir
+	ctr = mdAI()
+	res = ctr.init(ROOT)
+	res = ctr.harvest(PROJECT)
 
+	t_run = datetime.now() - t_start
+	print "runtime " + str( t_run)
 	exit(0)

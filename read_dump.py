@@ -33,6 +33,44 @@ class mdAI :
 		ROOT = direc
 		return 0
 
+	def harvest(self, projectDir):
+	######################################
+	# Purpose: Now mdAI's dump (and likely most) is Study root
+	#		based so there is a good chance the same patient is
+	#		scattered among several study folders. We consolidate them 
+	#		here
+	################################################
+		mod = 'read_dump.py:mdAI: harvest'
+
+		# first check if Hackathon folder exists
+		if not (os.path.isdir(ROOT + 'HACKATHON/')) : os.system('mkdir ' + ROOT + '/HACKATHON/')
+
+		# then check/make project folder under it
+		if not (os.path.isdir(ROOT + 'HACKATHON/' + projectDir)) : os.system('mkdir ' + ROOT + 'HACKATHON/' + projectDir)
+
+		# then crawl project folders to collect patients under the above
+		pDir = ROOT + projectDir
+		destination = ROOT + 'HACKATHON/' + projectDir
+		os.system('cd ' + pDir)
+
+		for root, dirs, files in os.walk(pDir)  :
+			for UID in dirs :
+				for r, d, f in os.walk(pDir + '/' + UID)  :
+					for i in d :
+						if (projectDir in i ) :
+							path = destination + '/' + i
+							thisDir = pDir + '/' + UID + '/' + i
+							# now check if this patient jacket in Hackathon - copy there if not	
+							if not (os.path.isdir(path) ) : 
+								os.system('cp -R ' + thisDir + ' ' + destination )
+							else:
+								print i + ' is already in ' + destination
+								# so Patient & Condtion are already there, just need to copy any new Reports to it
+								thisDir = pDir + '/' + UID + '/' + i + '/DiagnosticReport/*.json'
+								os.system('cp -R ' + thisDir + ' ' + destination )
+
+		return 0
+
 
 	def readDump(self, projectDIR, projectDump):
 	######################################
@@ -153,6 +191,9 @@ if __name__ == '__main__':
 
 	# then drop an image in each seriesFolder so that we have somethien to build FHIR from
 	res= ctr.getZips('tcia', 'ann')
+	
+	# always call this last
+	res = ctr.harvest('tcia')
 
 	exit (0)
 
