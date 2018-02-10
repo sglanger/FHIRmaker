@@ -221,7 +221,7 @@ if __name__ == '__main__':
 		res = ctr.init(ROOT)
 		res = ctr.readDump(PROJECT , DUMP)
 		# then drop an image in each seriesFolder so that we have somethien to build FHIR from
-		res= ctr.getZips(DUMP, 'ann')
+		res= ctr.getZips(PROJECT, 'ann')
 		os.system('cd ' + projectDir)
 		#exit(1)	
 
