@@ -18,12 +18,12 @@ a) create from that information a patient FHIR resource that matches the names u
 <br>d) aggragate the above resources on a single FHIR server with the above described Web page
 
 # Status
-Week 1: created the first 3 files indicated below, validating FHIR object output
+Week 1: created the first 3 files indicated below, validating FHIR object output, 
+Week 2: validated download_data.py "get" functions work as expected on Hackathon FHIR server
 
 # To Dos
 <br>1) send FHIR objects to FHIR git repo (manually for now)
-<br>2) validate (with download_data.py) the "get" functions work as expected on FHIR server
-<br>3) build the web page
+<br>2) build the web page
 
 # Contents
 <br>download_data.py ::	suite of classes to abstract RESTful calls to image archives
