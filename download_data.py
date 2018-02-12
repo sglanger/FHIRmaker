@@ -26,7 +26,7 @@ class hackathonFHIR :
 # External dependants: 'sudo pip install requests"
 #
 ##################################################
-	api_key = 'your-key'
+	api_key = 'your key'
 	url = 'http://api.hackathon.siim.org/fhir/'
 
 	def getPatients(self):
@@ -69,6 +69,26 @@ class hackathonFHIR :
 
 		response = requests.request("GET", url1, headers=headers)
 		return  response.text
+
+	def getCondition(self, PID) :
+	######################################
+	# Purpose: dump Patient resource 
+	# 	for a single patient
+	#	
+	##########################################
+		mod = 'download_data.py:hackathonFHIR:getCondition'
+		addon = 'Condition?patient=' + PID
+		url1 = self.url + addon
+
+		import requests
+		headers = {
+    		'Accept': "application/json",
+    		'apikey': self.api_key
+    		}
+
+		response = requests.request("GET", url1, headers=headers)
+		return  response.text
+
 
 	def getReports(self, PID):
 	######################################
@@ -118,7 +138,7 @@ class hackathonDCM :
 # External dependants: 
 #
 ##################################################
-	api_key = 'your-key'
+	api_key = 'your key'
 	url = 'http://api.hackathon.siim.org/dicomweb/'
 
 	def getStudies(self):
@@ -169,7 +189,7 @@ class tcia :
 #
 # External Requirments: 
 ##################################################
-	api_key = 'your-key'
+	api_key = 'your key'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
 	#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
 
@@ -262,24 +282,25 @@ if __name__ == '__main__':
 #
 #  also this stub for unit testing
 ################################################
-	mod = 'download_data.py: hackathonDCM'
+	mod = 'download_data.py: main'
 
-	import os, zipfile, dicom
+	import os, zipfile
 	from download_data import tcia
 	os.system('clear')
 
-	#source = hackathonFHIR()
-	#ret = source.getPatient('siimsally')
-	#print ret	
-	#print "-----------------------"
-	#ret = source.getReports('siimsally')
-	
-	source = tcia()
+	source = hackathonFHIR()
+	ret = source.getPatient('siimsally')
+	print ret	
+	print "-----------------------"
+	ret = source.getCondition('siimsally')
+	print ret
+
+	#source = tcia()
 	#ret = source.getSeriesUIDs ('1.3.6.1.4.1.14519.5.2.1.3344.4008.824746819228131664143570751388')
-	resp= source.getImage ('1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620') 
+	#resp= source.getImage ('1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620') 
 	#resp = source.getSeries ('1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620') 
-	with open('img.dcm', 'wb') as fp: fp.write(resp)
-	fp.close()
+	#with open('img.dcm', 'wb') as fp: fp.write(resp)
+	#fp.close()
 
 	exit (0)
 

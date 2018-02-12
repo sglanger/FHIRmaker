@@ -23,7 +23,7 @@ from pprint import pprint
 from read_dump import mdAI
 from datetime import datetime
 
-global projectDir, ROOT, DUMP, PROJECT
+global projectDir, ROOT, DUMP, PROJECT, ANNOTATE
 
 
 def makeFHIR(UID) :
@@ -58,8 +58,8 @@ def makeFHIR(UID) :
 					# now start making objects, only need 1 each for Pat and Cond
 					# but can have multiple reports objects
 					makePatient(fp, path)
-					makeCondition(fp, path)
-					makeDxReport(fp, path)
+					makeCondition(fp, path, UID)
+					makeDxReport(fp, path, UID)
 					
 	return 0
 
@@ -79,7 +79,7 @@ def makePatient (img, path) :
 	# pydicom http://pydicom.readthedocs.io/en/latest/pydicom_user_guide.html
 
 	# check if this object is already done - exit if so
-	if (os.path.isfile(path + '/Patient/done') ) : return 0
+	if (os.path.isfile(path + '/Patient/patient.json') ) : return 0
 
 	if not (os.path.isdir(path + '/Patient') ) : os.system('mkdir ' + path + '/Patient') 
 	# now start stuffing patient.json - first open the stub
@@ -99,16 +99,10 @@ def makePatient (img, path) :
 	fq.write (json.dumps(jsn, indent=2) )
 	fq.close()
 
-	# now leave a clue that we have done this one
-	if not (os.path.isfile(path + '/Patient/done') ) :	
-		fp = open(path + '/Patient/done' , 'w')
-		fp.write ('done')
-		fp.close() 
-
 	return 0 
 
 
-def makeCondition (img, path) :
+def makeCondition (img, path, UID) :
 #############################################
 # Purpose: use the annotation dump (or other clues)
 #	to stuff the FHIR condition
@@ -119,7 +113,7 @@ def makeCondition (img, path) :
 	skelDir = ROOT + 'skel/condition.json'
 
 	# check if this object is already done - exit if so
-	#if (os.path.isfile(path + '/Condition/done') ) : return 0
+	if (os.path.isfile(path + '/Condition/condition.json') ) : return 0
 
 	if not (os.path.isdir(path + '/Condition') ) : 	os.system('mkdir ' + path + '/Condition') 
 	# now start stuffing condition.json
@@ -133,24 +127,20 @@ def makeCondition (img, path) :
 	jsn['bodySite'][0]['text'] = img.BodyPartExamined
 
 	# and get Condition(s) from the Annotation dbase dump - for now fake it
-	jsn['code']['text'] = ' really sore liver'
-	jsn['code']['coding'][0]['display'] = 'really big lump'
+	ctr = mdAI()
+	res = ctr.init(ROOT)
+	jsn['code']['text'] = ctr.getCondition(ANNOTATE, UID)
+	jsn['code']['coding'][0]['display'] = 	ctr.getFindings(ANNOTATE, UID)
 
 	# write updates back to FHIR object
 	fq = open(path + '/Condition/condition.json', 'w')
 	fq.write (json.dumps(jsn, indent=2) )
 	fq.close()
 
-	# now leave a clue that we have done this one
-	if not (os.path.isfile(path + '/Condition/done') ) :	
-		fp = open(path + '/Condition/done' , 'w')
-		fp.write ('done')
-		fp.close() 
-
 	return 0 
 
 
-def makeDxReport (img, path) :
+def makeDxReport (img, path, UID) :
 #############################################
 # Purpose: use the annotation dump to get the
 #	findings per study and stuff each Dx report
@@ -168,6 +158,9 @@ def makeDxReport (img, path) :
 	fp.close()
 
 	# get finding(s) from the Annotation dbase dump
+	ctr = mdAI()
+	res = ctr.init(ROOT)
+	ctr.getFindings(ANNOTATE, UID)
 	jsn['id'] = img.StudyInstanceUID
 	jsn['identifier'][0]['value'] = img.AccessionNumber
 	jsn['code']['text'] = img.StudyDescription
@@ -205,10 +198,10 @@ if __name__ == '__main__':
 		DUMP = sys.argv[2]
 		PROJECT = sys.argv[1]
 
-	# load dump file
+	# load Annoation dump file
 	try :
 		fp = open ( ROOT + DUMP, 'r')
-		dump = fp.readlines()
+		ANNOTATE = fp.readlines()
 		fp.close
 	except:
 		print 'DUmp file does not exist'

@@ -21,6 +21,28 @@ class mdAI :
 #
 ##################################################
 
+	def getCondition(self, fp,UID):
+	#########################################################
+	# Purpose: crawls annotation dump for patient level condition
+	#
+	# fp = file handle to annoatation dump
+	# UID = UID in the dbase dumpe to seach
+	###########################################
+		mod = 'read_dump.py:mdAI: getCondition'
+
+		return 'cancer'
+
+	def getFindings(self, fp, UID):
+	#########################################################
+	# Purpose: crawls annotation dump for stdy level findings
+	#
+	#
+	###########################################
+		mod = 'read_dump.py:mdAI: getFinding'
+
+		return 'really big lump'
+
+
 	def init(self, direc):
 	######################################
 	# Purpose: if called by an external, set
