@@ -7,14 +7,14 @@ Let's say you are a Machine Learning researcher in medical imaging. You have a K
 Enter FHIRmaker
 
 # Theory
-Lot's of people have image sets: NIH, other govt. agencies, foundations, etc. The issue is not images per se, but curation, annotation and -machine- discoverability. Imagine having a web page you could go to and type in the patient condition you are interested in (in ICD10 codes). Then, for those patients, the studies that display relevent findings for that condition and acquired via modalities (i.e MR) and imaging paramters (i.e Pulse sequence) your ML Model can use. Press "Submit" and within seconds get a return list of URL's where the target studies on public archives exist.
+Lot's of people have image sets: NIH, other govt. agencies, foundations, etc. The issue is not images per se, but curation, annotation and -machine- discoverability. Imagine having a web page you could go to and type in the patient condition you are interested in (in ICD10  or SNOMED codes). Then, for those patients, find the studies that display relevent findings for that condition acquired via modalities (i.e MR) and imaging paramters (i.e Pulse sequence) your ML Model can use. Press "Submit" and within seconds get a return list of URL's where the target studies on public archives exist.
 
 How?
 
 There are several approaches one can take; some are easy and automated, others requires lot's of human effort. But at the end of the day, the goal is to index every patient/study on public sites and <p>
 a) create from that information a patient FHIR resource that matches the names used on the site
-<br>b) determine (via numerous methods) the patient conditions and list them in the Patient resource then
-<br>c) locate the studies for that patient, represent their findings in RADLEX in the Diagnostic Report resource and then
+<br>b) determine (via numerous methods) the "AI interesting" patient conditions and list them in the Patient resource then
+<br>c) locate the studies for that patient, represent their findings in RADLEX in the Diagnostic Report resource and acquisition parameters in the Imaging resources and then
 <br>d) aggragate the above resources on a single FHIR server with the above described Web page
 
 # Status
