@@ -1,0 +1,104 @@
+{
+  "active": true, 
+  "address": [
+    {
+      "city": "Rochester", 
+      "line": [
+        "534 Erewhon St"
+      ], 
+      "postalCode": "53999", 
+      "state": "MN", 
+      "use": "home"
+    }
+  ], 
+  "birthDate": "", 
+  "contact": [
+    {
+      "name": {
+        "_family": [
+          {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/Profile/iso-21090#qualifier", 
+                "valueCode": "VV"
+              }
+            ]
+          }, 
+          null
+        ], 
+        "family": [
+          "du", 
+          "March"
+        ], 
+        "given": [
+          "Bndicte"
+        ]
+      }, 
+      "relationship": [
+        {
+          "coding": [
+            {
+              "code": "partner", 
+              "system": "http://hl7.org/fhir/patient-contact-relationship"
+            }
+          ]
+        }
+      ], 
+      "telecom": [
+        {
+          "system": "phone", 
+          "value": "+33 (237) 998327"
+        }
+      ]
+    }
+  ], 
+  "deceasedBoolean": false, 
+  "gender": "M", 
+  "id": "TCGA-DD-A116", 
+  "identifier": [
+    {
+      "assigner": {
+        "display": "TCIA"
+      }, 
+      "period": {
+        "start": "2001-05-06"
+      }, 
+      "system": "urn:oid:1.2.36.146.595.217.0.1", 
+      "use": "usual", 
+      "value": "TCGA-DD-A116"
+    }
+  ], 
+  "managingOrganization": {
+    "reference": "Organization/siim"
+  }, 
+  "name": [
+    {
+      "family": "TCGA-DD-A116", 
+      "given": [
+        "Ravi"
+      ], 
+      "use": "official"
+    }, 
+    {
+      "given": [
+        "Ravi"
+      ], 
+      "use": "usual"
+    }
+  ], 
+  "resourceType": "Patient", 
+  "telecom": [
+    {
+      "use": "home"
+    }, 
+    {
+      "system": "phone", 
+      "use": "work", 
+      "value": "(507) 555 6473"
+    }
+  ], 
+  "text": {
+    "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">19 February Patient Feature pending</div>", 
+    "status": "generated"
+  }
+}
