@@ -30,7 +30,7 @@ class mdAI :
 	###########################################
 		mod = 'read_dump.py:mdAI: getCondition'
 
-		return 'cancer'
+		return mod + ' feature pending 2-19-18'
 
 	def getFindings(self, fp, UID):
 	#########################################################
@@ -40,7 +40,7 @@ class mdAI :
 	###########################################
 		mod = 'read_dump.py:mdAI: getFinding'
 
-		return 'really big lump'
+		return mod + ' feature pending 2-19-18'
 
 
 	def init(self, direc):
@@ -86,9 +86,11 @@ class mdAI :
 							if not (os.path.isdir(path) ) : 
 								os.system('cp -R ' + thisDir + ' ' + destination )
 							else:
-								print i + ' is already in ' + destination
-								# so Patient & Condtion are already there, just need to copy any new Reports to it
+								#print i + ' is already in ' + destination
+								# so Patient & Condtion are already there, just need to copy any new Reports and Imaging  to it
 								thisDir = pDir + '/' + UID + '/' + i + '/DiagnosticReport/*.json'
+								os.system('cp -R ' + thisDir + ' ' + destination )
+								thisDir = pDir + '/' + UID + '/' + i + '/ImagingStudy/*.json'
 								os.system('cp -R ' + thisDir + ' ' + destination )
 
 		return 0
@@ -150,7 +152,7 @@ class mdAI :
 
 			buf2 = buf2[end:]
 			cnt =cnt + 1
-			if (cnt > 4) : break
+			if (cnt > 20) : break
 
 		return 0
 
