@@ -7,14 +7,14 @@
   "description": "CT ABDOMEN w", 
   "id": "TCGA-DD-A1EB", 
   "numberOfInstances": 648, 
-  "numberOfSeries": "4", 
+  "numberOfSeries": 2, 
   "patient": {
     "reference": "TCGA-DD-A1EB"
   }, 
   "resourceType": "ImagingStudy", 
   "series": [
     {
-      "description": "scout", 
+      "description": "LOCALIZER", 
       "instance": [
         {
           "number": 1, 
@@ -29,7 +29,25 @@
       "number": 1, 
       "numberOfInstances": 2, 
       "started": "2000-01-28", 
-      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.6450.9002.320679027608000687591928843096"
+      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.332804372431634715131329365565"
+    }, 
+    {
+      "description": "HELICAL MODE", 
+      "instance": [
+        {
+          "number": 1, 
+          "sopClass": "1.2.840.10008.5.1.4.1.1.2", 
+          "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.6450.9002.290231660349920502919014183860"
+        }
+      ], 
+      "modality": {
+        "code": "CT", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+      }, 
+      "number": 2, 
+      "numberOfInstances": 2, 
+      "started": "2000-01-28", 
+      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.203912720333869095355022874302"
     }
   ], 
   "started": "19940104", 
