@@ -89,9 +89,9 @@ def makePatient (img, path) :
 	jsn['text']['div'] = "<div xmlns=\"http://www.w3.org/1999/xhtml\">19 February Patient Feature pending</div>"
 	jsn['identifier'][0]['value'] = img.PatientID
 	jsn['name'][0]['family'] = img.PatientName
+	jsn['name'][0]['assigner']['display'] = PROJECT
 	jsn['gender'] = img.PatientSex
 	jsn['birthDate'] = img.PatientBirthDate
-	print img.PatientBirthDate
 
 	# write updates back to FHIR object
 	fq = open(path + '/Patient/patient.json', 'w')
@@ -184,7 +184,6 @@ def makeImagingStudy (img, path, UID) :
 	skelDir = ROOT + 'skel/imagingStudy.json'
 	rootDir = projectDir + '/' + UID + '/DCM'
 
-	print '888888888 new exam 88888888888888888'
 	if not (os.path.isdir(path + '/ImagingStudy') ) : os.system('mkdir ' + path + '/ImagingStudy') 
 
 	# now start stuffing imagingStudy.json
@@ -218,8 +217,7 @@ def makeImagingStudy (img, path, UID) :
 
 	# then we write out the file w/ all the Exam level info
 	with open (path + '/ImagingStudy/imagingStudy_' + img.StudyInstanceUID + '.json', 'w') as fq : 
-		json.dump(jsn, fq, sort_keys=True, indent=2)
-	fq.close()	
+		json.dump(jsn, fq, sort_keys=True, indent=2)	
 
 	# now we read  the in-progress file  -back in- so we can stuff the series data
 	# by looping over the images in the DCM folder 
@@ -231,20 +229,21 @@ def makeImagingStudy (img, path, UID) :
 	cnt = 0
 	while cnt < len(files)  :
 		fp = dicom.read_file(rootDir + '/' + files[cnt])
-		print files[cnt]
 		jsn['series'][cnt]['number'] = cnt + 1
 		jsn['series'][cnt]['modality']['code'] = fp.Modality
-		jsn['series'][cnt]['uid'] = fp.SeriesInstanceUID
+		jsn['series'][cnt]['modality']['vendor'] = fp.Manufacturer
+		jsn['series'][cnt]['modality']['model'] = fp.ManufacturersModelName
+		jsn['series'][cnt]['modality']['version'] = fp.SoftwareVersions
+		jsn['series'][cnt]['uid'] = 'urn:oid:' + fp.SeriesInstanceUID
 		jsn['series'][cnt]['description'] = fp.SeriesDescription
-		print "******** new series *************"
+		jsn['series'][cnt]['started'] = fp.StudyDate
 		cnt = cnt + 1
 		#print fp.__dict__.keys()	
 
-	# and finally write the finished  updates back to FHIR json object
+	# and finally write the finished  updates back to Imaging json object
 	# https://stackoverflow.com/questions/21453117/json-dumps-not-working
 	with open (path + '/ImagingStudy/imagingStudy_' + img.StudyInstanceUID + '.json', 'w') as fq : 
 		json.dump(jsn, fq, sort_keys=True, indent=2)
-	fq.close()
 
 	return 0
 
@@ -261,12 +260,12 @@ if __name__ == '__main__':
 	mod = 'FHIRmaker.py: main'
 	os.system('clear')
 	ROOT = '/home/sgl02/code/py-code/mlcBuilder/'
-
 	t_start = datetime.now()
 
 	# use cmd line arg to locate projectDir
 	if len(sys.argv ) != 3 :
 		print "Incorrect Usage: Must include -project directory- and -dump file- No trailing /" 
+		print ">./FHIRmaker.py project_folder project_annotation_file "
 		exit(1)
 	else :
 		projectDir = ROOT + sys.argv[1]  
@@ -304,7 +303,7 @@ if __name__ == '__main__':
 
 	# and last - we consolidate all the study FHIR objects under patient folders 
 	# in HACKATHON + projectDir
-	# make sure multiple Reports and Imaging objects have  unique names
+	# assure multiple Reports and Imaging objects have unique names so Harvest does not over-write priors
 	ctr = mdAI()
 	res = ctr.init(ROOT)
 	res = ctr.harvest(PROJECT)

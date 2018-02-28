@@ -19,15 +19,26 @@
 #############################################################
 
 
-class hackathonFHIR :
+class FHIR :
 ###################################################
 # Purpose: handle calls to Hackathon FHIR server
 #
 # External dependants: 'sudo pip install requests"
 #
 ##################################################
-	api_key = 'your key'
-	url = 'http://api.hackathon.siim.org/fhir/'
+	# Hackathon FHIR url = 'http://api.hackathon.siim.org/fhir/'
+
+
+	def __init__(self, baseURL, key):
+	#######################################
+	# Purpose: dump all patients on this
+	# 	EMR. 
+	#	
+	##########################################
+		self.url = baseURL
+		self.api_key = key
+
+		return
 
 	def getPatients(self):
 	######################################
@@ -37,9 +48,9 @@ class hackathonFHIR :
 	##########################################
 		mod = 'download_data.py:hackathonFHIR:getPatients'
 		addon = 'Patient/'
-
 		url1 = self.url + addon
-		#		cmd = 'curl --request GET  --url url --header Accept: "application/json" --header apikey: api_key ' 
+
+		#	cmd = 'curl --request GET  --url url --header Accept: "application/json" --header apikey: api_key ' 
 		#print url1
 
 		import requests
@@ -131,15 +142,27 @@ class hackathonFHIR :
 		return  response.text
 
 		
-class hackathonDCM :
+class DCMweb :
 ###################################################
 # Purpose: handle calls to Hackathon DCMweb server
 #
 # External dependants: 
 #
 ##################################################
-	api_key = 'your key'
-	url = 'http://api.hackathon.siim.org/dicomweb/'
+
+	# Hackathon DCMweb url = 'http://api.hackathon.siim.org/dicomweb/'
+
+
+	def __init__(self, baseURL, key):
+	#######################################
+	# Purpose: dump all patients on this
+	# 	EMR. 
+	#	
+	##########################################
+		self.url = baseURL
+		self.api_key = key
+
+		return
 
 	def getStudies(self):
 	######################################
@@ -149,10 +172,9 @@ class hackathonDCM :
 	##########################################
 		mod = 'download_data.py:hackathonDCM:getStudies'
 		addon = 'studies/'
-
 		url1 = self.url + addon
-		import requests
 
+		import requests
 		headers = {
     		'Accept': "application/json",
     		'apikey': self.api_key
@@ -170,10 +192,9 @@ class hackathonDCM :
 	##########################################
 		mod = 'download_data.py:hackathonDCM:getStudies'
 		addon = 'studies/' + UID
-
 		url1 = self.url + addon
-		import requests
 
+		import requests
 		headers = {
     		'Accept': "application/json",
     		'apikey': self.api_key
@@ -189,9 +210,9 @@ class tcia :
 #
 # External Requirments: 
 ##################################################
-	api_key = 'your key'
+	api_key = 'your key here'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
-	#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
+	
 
 	# TCIA uses older server where all REST options must be URL encoded
 	# cannot use "headers" like above
@@ -203,10 +224,9 @@ class tcia :
 	###################################
 		mod = 'download_data.py:TCGA:getSeries'
 		addon= '/getImage?SeriesInstanceUID=' + UID + '&format=zip&api_key=' + self.api_key
-
 		url1 = self.url + addon
-		print url1
 
+		print url1
 		# https://wiki.cancerimagingarchive.net/display/Public/TCIA+Programmatic+Interface+%28REST+API%29+Usage+Guide
 		# https://github.com/TCIA-Community/TCIA-API-SDK/tree/master/tcia-rest-client-python
 
@@ -288,7 +308,7 @@ if __name__ == '__main__':
 	from download_data import tcia
 	os.system('clear')
 
-	source = hackathonFHIR()
+	source = FHIR('http://api.hackathon.siim.org/fhir/', 'your key here')
 	ret = source.getPatient('siimsally')
 	print ret	
 	print "-----------------------"
