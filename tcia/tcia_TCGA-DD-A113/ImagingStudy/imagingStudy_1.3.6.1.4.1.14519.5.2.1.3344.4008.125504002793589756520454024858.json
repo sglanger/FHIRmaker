@@ -24,30 +24,15 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "syngo CT 2006G"
       }, 
       "number": 1, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.148980208326933636157816770243"
-    }, 
-    {
-      "description": "Pelvis  5.0  B40f", 
-      "instance": [
-        {
-          "number": 1, 
-          "sopClass": "1.2.840.10008.5.1.4.1.1.2", 
-          "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.6450.9002.290231660349920502919014183860"
-        }
-      ], 
-      "modality": {
-        "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
-      }, 
-      "number": 2, 
-      "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.167614523833384850416961623267"
+      "started": "19990218", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.148980208326933636157816770243"
     }, 
     {
       "description": "Late Art. phase  3.0  B40f", 
@@ -60,12 +45,36 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "syngo CT 2006G"
+      }, 
+      "number": 2, 
+      "numberOfInstances": 2, 
+      "started": "19990218", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.149583678305846607971676255949"
+    }, 
+    {
+      "description": "Pelvis  5.0  B40f", 
+      "instance": [
+        {
+          "number": 1, 
+          "sopClass": "1.2.840.10008.5.1.4.1.1.2", 
+          "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.6450.9002.290231660349920502919014183860"
+        }
+      ], 
+      "modality": {
+        "code": "CT", 
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "syngo CT 2006G"
       }, 
       "number": 3, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.149583678305846607971676255949"
+      "started": "19990218", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.167614523833384850416961623267"
     }, 
     {
       "description": "P.Venous pha  3.0  B40f  cor", 
@@ -78,12 +87,15 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "syngo CT 2006G"
       }, 
       "number": 4, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.176842746520814403179506232629"
+      "started": "19990218", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.176842746520814403179506232629"
     }, 
     {
       "description": "Pelvis  3.0  B40f  cor  cor", 
@@ -96,12 +108,15 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "syngo CT 2006G"
       }, 
       "number": 5, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.165395775250834821204388737190"
+      "started": "19990218", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.165395775250834821204388737190"
     }, 
     {
       "description": "P.Venous pha  3.0  B40f", 
@@ -114,12 +129,15 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "syngo CT 2006G"
       }, 
       "number": 6, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.231735080425322739667069783272"
+      "started": "19990218", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.231735080425322739667069783272"
     }
   ], 
   "started": "19990218", 

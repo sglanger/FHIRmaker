@@ -88,8 +88,8 @@ def makePatient (img, path) :
 	jsn['id'] = img.PatientID
 	jsn['text']['div'] = "<div xmlns=\"http://www.w3.org/1999/xhtml\">19 February Patient Feature pending</div>"
 	jsn['identifier'][0]['value'] = img.PatientID
+	jsn['identifier'][0]['assigner']['display'] = PROJECT
 	jsn['name'][0]['family'] = img.PatientName
-	jsn['name'][0]['assigner']['display'] = PROJECT
 	jsn['gender'] = img.PatientSex
 	jsn['birthDate'] = img.PatientBirthDate
 

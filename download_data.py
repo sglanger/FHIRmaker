@@ -212,7 +212,7 @@ class tcia :
 ##################################################
 	api_key = 'your key here'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
-	
+
 
 	# TCIA uses older server where all REST options must be URL encoded
 	# cannot use "headers" like above

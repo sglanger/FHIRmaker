@@ -14,7 +14,7 @@
   "resourceType": "ImagingStudy", 
   "series": [
     {
-      "description": "P.Venous  3.0  B40f", 
+      "description": "Topogram  1.0  T20s", 
       "instance": [
         {
           "number": 1, 
@@ -24,30 +24,15 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "VA50B"
       }, 
       "number": 1, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.854409881407417565650828977922"
-    }, 
-    {
-      "description": "ThoraxRoutine  5.0  B40f", 
-      "instance": [
-        {
-          "number": 1, 
-          "sopClass": "1.2.840.10008.5.1.4.1.1.2", 
-          "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.6450.9002.290231660349920502919014183860"
-        }
-      ], 
-      "modality": {
-        "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
-      }, 
-      "number": 2, 
-      "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.103102453036078235504386712279"
+      "started": "19950906", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.856018717669672305873791462758"
     }, 
     {
       "description": "Arterial  3.0  B40f", 
@@ -60,12 +45,15 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "VA50B"
       }, 
-      "number": 3, 
+      "number": 2, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.208949456379783541277979256617"
+      "started": "19950906", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.208949456379783541277979256617"
     }, 
     {
       "description": "W/O ABD  5.0  B40f", 
@@ -78,15 +66,18 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "VA50B"
       }, 
-      "number": 4, 
+      "number": 3, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620"
+      "started": "19950906", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.765690937215201567055591839620"
     }, 
     {
-      "description": "Topogram  1.0  T20s", 
+      "description": "ThoraxRoutine  5.0  B40f", 
       "instance": [
         {
           "number": 1, 
@@ -96,12 +87,36 @@
       ], 
       "modality": {
         "code": "CT", 
-        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1"
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "VA50B"
+      }, 
+      "number": 4, 
+      "numberOfInstances": 2, 
+      "started": "19950906", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.103102453036078235504386712279"
+    }, 
+    {
+      "description": "P.Venous  3.0  B40f", 
+      "instance": [
+        {
+          "number": 1, 
+          "sopClass": "1.2.840.10008.5.1.4.1.1.2", 
+          "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.6450.9002.290231660349920502919014183860"
+        }
+      ], 
+      "modality": {
+        "code": "CT", 
+        "model": "Sensation 16", 
+        "system": "http://dicom.nema.org/medical/dicom/current/output/html/part03.html#sect_C.7.3.1.1", 
+        "vendor": "SIEMENS", 
+        "version": "VA50B"
       }, 
       "number": 5, 
       "numberOfInstances": 2, 
-      "started": "2000-01-28", 
-      "uid": "1.3.6.1.4.1.14519.5.2.1.3344.4008.856018717669672305873791462758"
+      "started": "19950906", 
+      "uid": "urn:oid:1.3.6.1.4.1.14519.5.2.1.3344.4008.854409881407417565650828977922"
     }
   ], 
   "started": "19950906", 
