@@ -19,6 +19,28 @@
 #############################################################
 
 
+class bioPort :
+###################################################
+# Purpose: send text findings to REST API and get
+#	back codes
+#
+# External dependants: 'sudo pip install requests"
+#	http://data.bioontology.org/documentation
+#
+##################################################
+
+	def __init__(self, baseURL, key):
+	#######################################
+	# Purpose: dump all patients on this
+	# 	EMR. 
+	#	
+	##########################################
+		self.url = baseURL
+		self.api_key = key
+
+		return
+
+
 class FHIR :
 ###################################################
 # Purpose: handle calls to Hackathon FHIR server
@@ -31,7 +53,7 @@ class FHIR :
 
 	def __init__(self, baseURL, key):
 	#######################################
-	# Purpose: dump all patients on this
+	# Purpose: set base URLs to call on this
 	# 	EMR. 
 	#	
 	##########################################
@@ -83,7 +105,7 @@ class FHIR :
 
 	def getCondition(self, PID) :
 	######################################
-	# Purpose: dump Patient resource 
+	# Purpose: dump Condition resource 
 	# 	for a single patient
 	#	
 	##########################################
@@ -103,7 +125,7 @@ class FHIR :
 
 	def getReports(self, PID):
 	######################################
-	# Purpose: dump Patient report ID's 
+	# Purpose: dump report ID's 
 	# 	for a single patient
 	#	
 	##########################################
@@ -123,7 +145,7 @@ class FHIR :
 
 	def getReport(self, PID, RID):
 	######################################
-	# Purpose: dump report  
+	# Purpose: dump a report  
 	# 	for a single patient
 	#	
 	##########################################
@@ -156,7 +178,7 @@ class DCMweb :
 	def __init__(self, baseURL, key):
 	#######################################
 	# Purpose: dump all patients on this
-	# 	EMR. 
+	# 	VNA. 
 	#	
 	##########################################
 		self.url = baseURL
@@ -186,7 +208,7 @@ class DCMweb :
 
 	def getStudy(self, UID):
 	######################################
-	# Purpose: get speific study mathcing UID
+	# Purpose: get speific study matching UID
 	# 
 	#	
 	##########################################
@@ -210,9 +232,9 @@ class tcia :
 #
 # External Requirments: 
 ##################################################
-	api_key = 'your key here'
+	api_key = '5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
-
+	#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
 
 	# TCIA uses older server where all REST options must be URL encoded
 	# cannot use "headers" like above

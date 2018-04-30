@@ -291,7 +291,7 @@ if __name__ == '__main__':
 		ctr = mdAI()
 		res = ctr.init(ROOT)
 		res = ctr.readDump(PROJECT , DUMP)
-		# then drop an image in each seriesFolder so that we have somethien to build FHIR from
+		# then drop an image in each seriesFolder so that we have something to build FHIR from
 		res= ctr.getZips(PROJECT, 'all')
 		os.system('cd ' + projectDir)
 
