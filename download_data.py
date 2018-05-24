@@ -234,7 +234,7 @@ class tcia :
 ##################################################
 	api_key = 'get your own'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
-	#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
+	#addon = '/getCollectionValues?format=json&api_key=insert key'		# for testiing
 
 	# TCIA uses older server where all REST options must be URL encoded
 	# cannot use "headers" like above
