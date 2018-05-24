@@ -232,7 +232,7 @@ class tcia :
 #
 # External Requirments: 
 ##################################################
-	api_key = '5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'
+	api_key = 'get your own'
 	url = 'https://services.cancerimagingarchive.net/services/v3/TCIA/query' 
 	#addon = '/getCollectionValues?format=json&api_key=5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb'		# for testiing
 
