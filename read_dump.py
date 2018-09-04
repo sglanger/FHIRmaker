@@ -10,6 +10,28 @@
 ###############################################################
 import os, string, zipfile
 from download_data import tcia
+from download_data import DCMweb
+
+class bioPort :
+###################################################
+# Purpose: send text findings to REST API and get
+#	back codes
+#
+# External dependants: 'sudo pip install requests"
+#	http://data.bioontology.org/documentation
+#
+##################################################
+
+	def __init__(self, baseURL, key):
+	#######################################
+	# Purpose: dump all patients on this
+	# 	EMR. 
+	#	
+	##########################################
+		self.url = baseURL
+		self.api_key = key
+
+		return
 
 
 class mdAI :
@@ -21,39 +43,19 @@ class mdAI :
 #
 ##################################################
 
-	def getCondition(self, fp,UID):
-	#########################################################
-	# Purpose: crawls annotation dump for patient level condition
-	#
-	# fp = file handle to annoatation dump
-	# UID = UID in the dbase dumpe to seach
-	###########################################
-		mod = 'read_dump.py:mdAI: getCondition'
 
-		return mod + ' feature pending 2-19-18'
-
-	def getFindings(self, fp, UID):
-	#########################################################
-	# Purpose: crawls annotation dump for stdy level findings
-	#
-	#
-	###########################################
-		mod = 'read_dump.py:mdAI: getFinding'
-
-		return mod + ' feature pending 2-19-18'
-
-
-	def init(self, direc):
+	def __init__(self, direc):
 	######################################
 	# Purpose: if called by an external, set
 	#	global Vars
 	#	
 	########################################
 		mod = 'read_dump.py:mdAI:init'
-		global ROOT
+		self.ROOT = direc
 
-		ROOT = direc
-		return 0
+		return 
+
+
 
 	def harvest(self, projectDir):
 	######################################
@@ -65,14 +67,14 @@ class mdAI :
 		mod = 'read_dump.py:mdAI: harvest'
 
 		# first check if Hackathon folder exists
-		if not (os.path.isdir(ROOT + 'HACKATHON/')) : os.system('mkdir ' + ROOT + '/HACKATHON/')
+		if not (os.path.isdir(self.ROOT + 'HACKATHON/')) : os.system('mkdir ' + self.ROOT + '/HACKATHON/')
 
 		# then check/make project folder under it
-		if not (os.path.isdir(ROOT + 'HACKATHON/' + projectDir)) : os.system('mkdir ' + ROOT + 'HACKATHON/' + projectDir)
+		if not (os.path.isdir(self.ROOT + 'HACKATHON/' + projectDir)) : os.system('mkdir ' + self.ROOT + 'HACKATHON/' + projectDir)
 
 		# then crawl project folders to collect patients under the above
-		pDir = ROOT + projectDir
-		destination = ROOT + 'HACKATHON/' + projectDir
+		pDir = self.ROOT + projectDir
+		destination = self.ROOT + 'HACKATHON/' + projectDir
 		os.system('cd ' + pDir)
 
 		for root, dirs, files in os.walk(pDir)  :
@@ -96,6 +98,7 @@ class mdAI :
 		return 0
 
 
+
 	def readDump(self, projectDIR, projectDump):
 	######################################
 	# Purpose: read the JSON dump. For every studyUID
@@ -105,34 +108,49 @@ class mdAI :
 	##########################################
 		mod = 'read_dump.py:mdAI:readDUmp'
 
-		fp = open ( ROOT + projectDump, 'r')
+		fp = open ( self.ROOT + projectDump, 'r')
 		buf = fp.readlines()
-		fp.close
+		fp.close()		
 
-		pDir = ROOT + projectDIR
+		pDir = self.ROOT + projectDIR
 		if ( os.path.isdir(pDir) ):
 			print "directory exists"
 		else:
 			os.system('mkdir ' + pDir)
 
 		os.system('cd ' + pDir)
-		# now the fun  starts. For each StudyUID in dump, locate the children
-		# seriesUID and build a list of All of them
+		# now the fun  starts. For each StudyUID in dump, locate the child seriesUIDs and build a list of All of them
 		buf2 = buf[0]
+		# first get to where the annotations start, 
+		buf2 = buf2[buf2.find('annotations":'):]
+
 		end = 0
 		cnt = 0
 		while ( end < len(buf2) ):
 			start = buf2.find('StudyInstanceUID') + 19
-			end  = start + 64
-			UID = buf2[start:end]
+			end  = start + 120		
+			UID = buf2[start:end]	
+			UID = UID[0 : UID.find('"')]	# find true end of the UID (where the final " is)
+
 			# now make that study level folder
 			if not (os.path.isdir(pDir + '/' + UID)) :	os.system('mkdir ' + pDir + '/' + UID)
 			
-			# now move into UID directory to make lists
+			# now move into studyUID directory to make lists
 			os.system('cd ' + pDir + '/' + UID)
+
+			# Now, check VNA for all series under this studyUID	
 			if not (os.path.isdir(pDir + '/' + UID + '/allSeries') ) :
-				source = tcia()
-				allSeries = source.getSeriesUIDs(UID)
+				# Magic happens here - in download_data we handle two Image archive APIs
+				# either TCIA's  ....
+				if projectDIR ==  "tcia" :
+					source = tcia('tcia')
+					allSeries = source.getSeriesUIDs(UID)
+				else :
+					# or DICOMweb API
+					source = DCMweb('hackDCM')
+					allSeries = source.getSeriesUIDs(UID)
+					#print mod + ' ' + str(allSeries)
+		
 				fw = open ( pDir + '/' + UID + '/allSeries', 'w')
 				fw.write(str(allSeries))
 				fw.close()
@@ -144,32 +162,87 @@ class mdAI :
 				buf3 = fw.readlines()
 				fw.close()
 				for i in buf3[0].split(',') : 
-					if (i[3:67] in  buf[0] ) : array.append(i[3:67])
+					#print "raw " + i
+					if ('u' in i) : i = i[i.find('u') + 2 :]			
+					if ('\'' in i) : i = i[:i.find('\'') ]
+					#print " post " + i
+					if (i in  buf[0] ) : 
+						#print "found match in annotaed " + i
+						array.append(i)
 
-				fw = open ( pDir + '/' + UID + '/annotatedSeries', 'w')
+				fw = open ( pDir + '/' + UID + '/annotatedSeries', 'a')
+				#print mod + ' annotaed array is ' + str(array)
 				fw.write(str(array))			
 				fw.close()
 
 			buf2 = buf2[end:]
 			cnt =cnt + 1
-			if (cnt > 20) : break
+			if (cnt > 4) : break
 
 		return 0
 
-	def getZips (self, project, lists) :
-	######################################
-	# Purpose: read the indicated list of 
-	# 	seriesUIDs and fetch zips for it
-	##########################################
-		mod = 'read_dump.py:mdAI:getZips'
 
-		pDir = ROOT + project
+	def getImgs (self, project, lists):
+	################################
+	# Purpose: fetch a single image for each 
+	#	annooated series so we have something to 
+	#	build FHIR data from
+	#
+	# Caller: FHIRmaker:main DCMweb case
+	#########################################
+		mod = 'read_dump.py:mdAI:getImgs'
+
+		pDir = self.ROOT + project
 		os.system('cd ' + pDir)
 
 		for root, dirs, files in os.walk(pDir)  :
 			for UID in dirs :
 				if not ( '.' in UID ) : break
-				print "study " + UID
+				print mod + " study " + UID
+				if ('all' in lists) :
+					fp =  open(pDir + '/' + UID + '/allSeries', 'r')
+				else:
+					fp =  open(pDir + '/' + UID + '/annotatedSeries', 'r')
+
+				res = fp.readlines()
+				fp.close()
+
+				# now we are going to get a single image from each indicated seriesUID
+				if not (os.path.isdir(pDir + '/' + UID + '/DCM')) :	os.system('mkdir ' + pDir + '/' + UID + '/DCM')
+				for i in res[0].split(',') :
+					#print ' raw ' + i
+					if ('[' in i ) : i =  i[i.find('[') + 2 :]
+					if (']' in i ) : i =  i[:i.find(']') - 1 ]
+					if ('\'' in i ) : i =  i[i.find('\'') + 1 :]
+					print  ' *** series '  + i
+					src = DCMweb('hackDCM')
+					err, resp = src.getImage(UID, i)
+					if not err :
+						with open(pDir + '/' + UID + '/DCM/' + i + '.dcm', 'wb') as fp: fp.write(resp)
+						fp.close()		
+					else:
+						print mod + ' unable to find an instance for ' , UID, i
+						return 1
+
+		return 0
+
+
+	def getZips (self, project, lists) :
+	######################################
+	# Purpose: read the indicated list of 
+	# 	seriesUIDs and fetch zips for that series
+	#
+	# Caller: FHIRmaker TCIA case
+	##########################################
+		mod = 'read_dump.py:mdAI:getZips'
+
+		pDir = self.ROOT + project
+		os.system('cd ' + pDir)
+
+		for root, dirs, files in os.walk(pDir)  :
+			for UID in dirs :
+				if not ( '.' in UID ) : break
+				print mod + ' study ' + UID
 				if ('all' in lists) :
 					fp =  open(pDir + '/' + UID + '/allSeries', 'r')
 					start = 3
@@ -187,7 +260,7 @@ class mdAI :
 				if not (os.path.isdir(pDir + '/' + UID + '/DCM')) :	os.system('mkdir ' + pDir + '/' + UID + '/DCM')
 				for i in res[0].split(',') :
 					print '*** series ' + i[start:end]
-					src = tcia()
+					src = tcia('tcia')
 					resp = src.getImage( i[start:end])
 					with open(pDir + '/' + UID + '/DCM/' + i[start:end] + '.dcm', 'wb') as fp: fp.write(resp)
 					fp.close()
@@ -196,6 +269,49 @@ class mdAI :
 					#with open(pDir + '/' + UID + '/DCM/' + i[start:end] + '.zip', 'wb') as fp: fp.write(resp)
 	
 		return 0
+
+
+	def getConditionFindings(self, path,UID):
+	#########################################################
+	# Purpose: crawls annotation dump for patient level condition
+	#
+	# path = path to the the annoatation dump by the caller
+	# UID = study level ID in the dbase dump to search for
+	#
+	# Called by: FHIRmaker:makeDxReport and  FHIRmaker:makeCOndition
+	# NOtes: earlier versions of MD.ai did not provide this info
+	######################################################
+		mod = 'read_dump.py:mdAI: getConditionFindings'
+		import json
+		Condition = ' This MD.ai dump has no Condition codes for study ' + UID
+		Findings = ' This MD.ai dump has no Finding codes for study ' + UID
+
+		fp = open(path, 'r')
+		jsn = json.load(fp)
+		fp.close()
+
+		try :
+			i = 0
+			cnt = 0
+			while jsn:
+				item =  jsn['datasets'][0]['annotations'][i]
+				studyUID = item['StudyInstanceUID']
+				if studyUID == UID :
+					# can be multiple annotations for same study, concat results
+					cnt = cnt + 1
+					print mod + ' found annotation ' + cnt + ' for ' + UID
+					if not ('None' in item['note']) :
+						Condition = str(item['radlexTagIds'])
+						Findings = str(item['note'])
+						#Data =  str(item['data'])
+						#print mod + ' ' + Findings + ' ' + Condition 
+ 					#break
+
+				i = i+1
+		except :
+			a = 1
+
+		return Condition, Findings
 
 
 if __name__ == '__main__':
@@ -207,17 +323,24 @@ if __name__ == '__main__':
 ################################################
 	mod = 'read_dump.py: main'
 	os.system('clear')
+	print "*****************"
 
-	# build lists of all series and annotaed series for the dump
-	ctr = mdAI()
-	res = ctr.init('/home/sgl02/code/py-code/mlcBuilder/')
+	# Call class and set ROOT path
+	ctr = mdAI('/home/sgl02/code/py-code/mlcBuilder/')
+
+	############### TESTS for MD.ai dump on TCIA archive
+	# build lists "all_series" and "annotaed_series" for the dump
 	res = ctr.readDump('tcia' , 'project_20_all_2018-01-27-130167.json')
-
 	# then drop an image in each seriesFolder so that we have somethien to build FHIR from
-	res= ctr.getZips('tcia', 'ann')
-	
+	#res= ctr.getZips('tcia', 'ann')
 	# always call this last
-	res = ctr.harvest('tcia')
+	#res = ctr.harvest('tcia')
 
+	############### Tests for  MD.ai dump on a DCMweb archive
+	res = ctr.readDump('cxr','mdai_siim_project_x9N20BZa_annotations_labelgroup_all_2018-08-15-123730.json')
+	ID = '1.2.276.0.7230010.3.1.2.8323329.1014.1517875165.916102'
+	res = ctr.getConditionFindings( '/home/sgl02/code/py-code/mlcBuilder/mdai_siim_project_x9N20BZa_annotations_labelgroup_all_2018-08-15-123730.json', ID) 
+
+	print res
 	exit (0)
 

@@ -23,7 +23,7 @@ from pprint import pprint
 from read_dump import mdAI
 from datetime import datetime
 
-global projectDir, ROOT, DUMP, PROJECT, ANNOTATE
+global projectDir, ROOT, PROJECT, ANNOTATE
 
 
 def makeFHIR(UID) :
@@ -120,15 +120,15 @@ def makeCondition (img, path, UID) :
 	# update buffer with demog from DCM image
 	jsn['id'] = img.PatientID
 	jsn['text']['div'] = "<div xmlns=\"http://www.w3.org/1999/xhtml\">19 February Condition Feature pending</div>"
-	jsn['patient']['reference'] =  img.PatientName
+	jsn['subject']['reference'] =  img.PatientName
 	jsn['bodySite'][0]['text'] = img.BodyPartExamined
 	jsn['bodySite'][0]['coding'][0]['display'] = img.BodyPartExamined
 
 	# and get Condition(s) from the Annotation dbase dump - for now fake it
-	ctr = mdAI()
-	res = ctr.init(ROOT)
-	jsn['code']['text'] = ctr.getCondition(ANNOTATE, UID)
-	jsn['code']['coding'][0]['display'] = 	ctr.getCondition(ANNOTATE, UID)
+	ctr = mdAI(ROOT)
+	condition, findings = ctr.getConditionFindings(ANNOTATE, UID)
+	jsn['code']['text'] = condition
+	jsn['code']['coding'][0]['display'] = 	condition
 
 	# write updates back to FHIR object
 	fq = open(path + '/Condition/condition.json', 'w')
@@ -163,9 +163,9 @@ def makeDxReport (img, path, UID) :
 	jsn['effectiveDateTime'] = img.StudyDate
 
 	# get finding(s) from the Annotation dbase dump
-	ctr = mdAI()
-	res = ctr.init(ROOT)
-	jsn['conclusion'] = ctr.getFindings(ANNOTATE, UID)
+	ctr = mdAI(ROOT)
+	condition, findings = ctr.getConditionFindings(ANNOTATE, UID)
+	jsn['conclusion'] = findings
 		
 	# write updates back to FHIR object
 	fq = open(path + '/DiagnosticReport/diagnosticReport_' + img.StudyInstanceUID + '.json', 'w')
@@ -208,11 +208,13 @@ def makeImagingStudy (img, path, UID) :
 	files = [] 
 	files = os.listdir( rootDir  )
 	chunk = jsn['series'][0]
+	chunk2 = jsn['text']['series'][0]
 	cnt = 0
 
 	# first use the stubfile and grow the series section to the size needed
 	while cnt < ( len(files) -1)  : 
 		jsn['series'].append(chunk)	
+		jsn['text']['series'].append(chunk2)
 		cnt = cnt + 1
 
 	# then we write out the file w/ all the Exam level info
@@ -231,12 +233,15 @@ def makeImagingStudy (img, path, UID) :
 		fp = dicom.read_file(rootDir + '/' + files[cnt])
 		jsn['series'][cnt]['number'] = cnt + 1
 		jsn['series'][cnt]['modality']['code'] = fp.Modality
-		jsn['series'][cnt]['modality']['vendor'] = fp.Manufacturer
-		jsn['series'][cnt]['modality']['model'] = fp.ManufacturersModelName
-		jsn['series'][cnt]['modality']['version'] = fp.SoftwareVersions
 		jsn['series'][cnt]['uid'] = 'urn:oid:' + fp.SeriesInstanceUID
 		jsn['series'][cnt]['description'] = fp.SeriesDescription
 		jsn['series'][cnt]['started'] = fp.StudyDate
+
+		jsn['text']['series'][cnt]['number'] = cnt + 1
+		jsn['text']['series'][cnt]['description'] = fp.SeriesDescription
+		jsn['text']['series'][cnt]['vendor'] = fp.Manufacturer
+		jsn['text']['series'][cnt]['model'] = fp.ManufacturerModelName
+		jsn['text']['series'][cnt]['version'] = fp.SoftwareVersions
 		cnt = cnt + 1
 		#print fp.__dict__.keys()	
 
@@ -268,14 +273,15 @@ if __name__ == '__main__':
 		print ">./FHIRmaker.py project_folder project_annotation_file "
 		exit(1)
 	else :
-		projectDir = ROOT + sys.argv[1]  
-		DUMP = sys.argv[2]
 		PROJECT = sys.argv[1]
+		projectDir = ROOT + PROJECT 
+		DUMP = sys.argv[2]
+		ANNOTATE =  ROOT + DUMP
 
-	# load Annoation dump file
+
+	# test loading of Annoation dump file
 	try :
-		fp = open ( ROOT + DUMP, 'r')
-		ANNOTATE = fp.readlines()
+		fp = open ( ANNOTATE, 'r')
 		fp.close
 	except:
 		print 'DUmp file does not exist'
@@ -285,14 +291,20 @@ if __name__ == '__main__':
 	if (os.path.isdir(projectDir) ) :	
 		os.system('cd ' + projectDir)
 	else :
-		print "project directory does not exist - use read_dump to create project " 
-		#exit(1)
-		# build lists of all series and annotaed series for the dump
-		ctr = mdAI()
-		res = ctr.init(ROOT)
+		print "project directory does not exist - creating it " 
+		ctr = mdAI(ROOT)
 		res = ctr.readDump(PROJECT , DUMP)
 		# then drop an image in each seriesFolder so that we have something to build FHIR from
-		res= ctr.getZips(PROJECT, 'all')
+		if PROJECT ==  "tcia" :
+			# using TCIA API
+			res= ctr.getZips(PROJECT, 'all')
+		else:
+			# using the DCMweb API
+			res = ctr.getImgs(PROJECT, 'all')
+			if res == 1: 
+				print mod , ' unable to locate images on VNA, exiting'
+				exit(0)
+
 		os.system('cd ' + projectDir)
 
 	# it exists, let's light some FHIRs
@@ -304,9 +316,8 @@ if __name__ == '__main__':
 	# and last - we consolidate all the study FHIR objects under patient folders 
 	# in HACKATHON + projectDir
 	# assure multiple Reports and Imaging objects have unique names so Harvest does not over-write priors
-	ctr = mdAI()
-	res = ctr.init(ROOT)
-	res = ctr.harvest(PROJECT)
+	ctr = mdAI(ROOT)
+	#res = ctr.harvest(PROJECT)
 
 	print "runtime = " + str( datetime.now() - t_start)
 	exit(0)

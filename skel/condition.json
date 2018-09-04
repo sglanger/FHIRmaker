@@ -5,7 +5,7 @@
     "status": "generated",
     "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">5/24/2008 Invasive ductal carcinoma</div>"
   },
-  "patient": {
+  "subject": {
     "reference": "Patient/siimsally"
   },
   "code": {
