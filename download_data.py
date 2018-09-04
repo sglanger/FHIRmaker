@@ -39,7 +39,7 @@ class FHIR :
 
 		# build a dict for site data, thus collecting all keys here
 		# first element is RESTful endpoint, second is API key
-		str1 = ['http://hackathon.siim.org/fhir/', 'dd6f7f1d-1586-438f-8d35-ff589a12f4df']
+		str1 = ['http://hackathon.siim.org/fhir/', 'your key here']
 		str2 = ['http://site.example.com/', 'new api key']
 		site_dict = {'hackFHIR': str1, 'site2': str2}
 
@@ -150,7 +150,7 @@ class DCMweb :
 
 		# build a dict for site data, thus collecting all keys here
 		# first element is RESTful endpoint, second is API key
-		str1 = ['http://hackathon.siim.org/dicomweb/', 'dd6f7f1d-1586-438f-8d35-ff589a12f4df']
+		str1 = ['http://hackathon.siim.org/dicomweb/', 'your key here']
 		str2 = ['http://site.example.com/', 'new api key']
 		site_dict = {'hackDCM': str1, 'site2': str2}
 
@@ -325,7 +325,7 @@ class tcia :
 
 		# build a dict for site data, thus collecting all keys here
 		# first element is RESTful endpoint, second is API key
-		str1 = ['https://services.cancerimagingarchive.net/services/v3/TCIA/query' , '5d6a3e3f-16ef-47f5-b48c-5cf8d02138bb']
+		str1 = ['https://services.cancerimagingarchive.net/services/v3/TCIA/query' , 'your key here']
 		str2 = ['http://site.example.com/', 'new api key']
 		site_dict = {'tcia': str1, 'site2': str2}
 
