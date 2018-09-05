@@ -153,14 +153,26 @@ def makeDxReport (img, path, UID) :
 	jsn = json.load(fp)
 	fp.close()
 
-	jsn['id'] =  img.PatientID
-	jsn['code']['coding'][0]['code'] = img.AccessionNumber
-	jsn['code']['text'] = img.StudyDescription
-	jsn['issued'] = img.StudyDate
-
-	jsn['identifier'][0]['value'] = img.PatientID
-	jsn['subject']['reference'] = img.PatientName
-	jsn['effectiveDateTime'] = img.StudyDate
+	try :
+		jsn['id'] =  img.PatientID
+		jsn['code']['coding'][0]['code'] = img.AccessionNumber
+		jsn['code']['text'] = img.StudyDescription
+		jsn['issued'] = img.StudyDate
+		jsn['identifier'][0]['value'] = img.PatientID
+		jsn['subject']['reference'] = img.PatientName
+		jsn['effectiveDateTime'] = img.StudyDate
+	except AttributeError:
+		tag = str (sys.exc_info()[1])
+		token = 'attribute '
+		tag = tag[tag.find(token) + len(token) + 1:]
+		tag = tag[:tag.find('.') -1]
+		if ('StudyDescription' in tag) : jsn['code']['text'] = 'Tag ' + tag + ' undefined by  source image'
+	except :
+		e_type = sys.exc_info()[0]
+		e_err = sys.exc_info()[1]
+		print mod, e_type, e_err
+	finally :
+		pass
 
 	# get finding(s) from the Annotation dbase dump
 	ctr = mdAI(ROOT)
@@ -194,14 +206,22 @@ def makeImagingStudy (img, path, UID) :
 	fp.close()
 
 	# study level stuff we can get from 'img'
-	jsn['id'] = img.PatientID
-	jsn['started'] = img.StudyDate
-	jsn['uid'] = 'urn:oid:' + img.StudyInstanceUID
-	jsn['patient']['reference']  = img.PatientName
-	jsn['accession']['value'] = img.AccessionNumber
-	jsn['description'] = img.StudyDescription
-	status, output = commands.getstatusoutput('ls -l ' + rootDir + ' |grep -c dcm')
-	jsn['numberOfSeries'] = int( output )
+	try :
+		jsn['id'] = img.PatientID
+		jsn['started'] = img.StudyDate
+		jsn['uid'] = 'urn:oid:' + img.StudyInstanceUID
+		jsn['patient']['reference']  = img.PatientName
+		jsn['accession']['value'] = img.AccessionNumber
+		jsn['description'] = img.StudyDescription
+		status, output = commands.getstatusoutput('ls -l ' + rootDir + ' |grep -c dcm')
+		jsn['numberOfSeries'] = int( output )
+	except AttributeError:
+		tag = str (sys.exc_info()[1])
+		token = 'attribute '
+		tag = tag[tag.find(token) + len(token) + 1:]
+		tag = tag[:tag.find('.') -1]
+		if ('StudyDescription' in tag) : jsn['description'] = 'Tag ' + tag + ' undefined by source image'
+
 
 	# now how do I stuff an array of N series into a container of 1
 	# https://stackoverflow.com/questions/35333187/how-can-i-insert-new-json-object-to-existing-json-file-in-the-middle-of-object
@@ -230,20 +250,30 @@ def makeImagingStudy (img, path, UID) :
 	# and now we can stuff the series array by looping over an img per each series
 	cnt = 0
 	while cnt < len(files)  :
-		fp = dicom.read_file(rootDir + '/' + files[cnt])
-		jsn['series'][cnt]['number'] = cnt + 1
-		jsn['series'][cnt]['modality']['code'] = fp.Modality
-		jsn['series'][cnt]['uid'] = 'urn:oid:' + fp.SeriesInstanceUID
-		jsn['series'][cnt]['description'] = fp.SeriesDescription
-		jsn['series'][cnt]['started'] = fp.StudyDate
+		try :
+			fp = dicom.read_file(rootDir + '/' + files[cnt])
+			jsn['series'][cnt]['number'] = cnt + 1
+			jsn['series'][cnt]['modality']['code'] = fp.Modality
+			jsn['series'][cnt]['uid'] = 'urn:oid:' + fp.SeriesInstanceUID
+			jsn['series'][cnt]['description'] = fp.SeriesDescription
+			jsn['series'][cnt]['started'] = fp.StudyDate
+			jsn['text']['series'][cnt]['number'] = cnt + 1
+			jsn['text']['series'][cnt]['description'] = fp.SeriesDescription
+			jsn['text']['series'][cnt]['vendor'] = fp.Manufacturer
+			jsn['text']['series'][cnt]['model'] = fp.ManufacturerModelName
+			jsn['text']['series'][cnt]['version'] = fp.SoftwareVersions
+			cnt = cnt + 1
+			print mod, cnt
+			#print fp.__dict__.keys()	
+		except AttributeError:
+			tag = str (sys.exc_info()[1])
+			token = 'attribute '
+			tag = tag[tag.find(token) + len(token) + 1:]
+			tag = tag[:tag.find('.') -1]
+			if ('ManufacturerModel' in tag) : jsn['text']['series'][cnt]['model'] = 'Tag ' + tag + '  undefined by annotation dump or source image'
+			if ('Manufac' in tag) : jsn['text']['series'][cnt]['vendor'] = 'Tag ' + tag + '  undefined by annotation dump or source image'
+			cnt = cnt+1
 
-		jsn['text']['series'][cnt]['number'] = cnt + 1
-		jsn['text']['series'][cnt]['description'] = fp.SeriesDescription
-		jsn['text']['series'][cnt]['vendor'] = fp.Manufacturer
-		jsn['text']['series'][cnt]['model'] = fp.ManufacturerModelName
-		jsn['text']['series'][cnt]['version'] = fp.SoftwareVersions
-		cnt = cnt + 1
-		#print fp.__dict__.keys()	
 
 	# and finally write the finished  updates back to Imaging json object
 	# https://stackoverflow.com/questions/21453117/json-dumps-not-working
@@ -283,7 +313,7 @@ if __name__ == '__main__':
 	try :
 		fp = open ( ANNOTATE, 'r')
 		fp.close
-	except:
+	except IOError:
 		print 'DUmp file does not exist'
 		exit(1)
 
