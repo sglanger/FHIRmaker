@@ -1,5 +1,5 @@
 # FHIRmaker
-Purpose: Crawl public, annotaed, medical imaging archives, based on those annotations create Patient, Condition, diagnosticReport and imagingStudy FHIR resources which in turn are discoverable via a FHIR API
+Purpose: Crawl public, annotated, medical imaging archives, based on those annotations create Patient, Condition, diagnosticReport and imagingStudy FHIR resources which in turn are discoverable via a FHIR API
 
 
 # The Challenge
