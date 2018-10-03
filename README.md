@@ -32,4 +32,6 @@ a) create from that information a patient FHIR resource that matches the names u
 <br>download_data.py ::	suite of classes to abstract RESTful calls to image archives
 <br>read_dump.py ::			class to read JSON dump of a dbase after it annotates an Archive (should include findings)
 <br>FHIRmaker.py ::			class to call the above 2, and based on info create Patient and Report FHIR objects
+<br>FHIRfetch.py ::			class to take command line arguments (body part, Condition) and return pointers to Patient/Reports/StudyURLs that match
+
 
