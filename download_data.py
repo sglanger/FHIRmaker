@@ -1,4 +1,5 @@
 #!/usr/bin/python 
+from __future__ import print_function
 
 ########################## download_data.py ####################
 # Author: SG Langer 30 Jan 2018
@@ -21,7 +22,7 @@
 
 class FHIR :
 ###################################################
-# Purpose: handle calls to Hackathon FHIR server
+# Purpose: handle calls to any FHIR server
 #
 # External dependants: "sudo pip install requests"
 #
@@ -36,7 +37,7 @@ class FHIR :
 	#
 	# Caller: 	
 	##########################################
-
+		mod = 'download_data.py:FHIR:init'
 		# build a dict for site data, thus collecting all keys here
 		# first element is RESTful endpoint, second is API key
 		str1 = ['http://hackathon.siim.org/fhir/', 'your key here']
@@ -59,7 +60,7 @@ class FHIR :
 	# 	EMR. 
 	#	
 	##########################################
-		mod = 'download_data.py:hackathonFHIR:getPatients'
+		mod = 'download_data.py:FHIR:getPatients'
 		addon = 'Patient/'
 		url1 = self.url + addon
 
@@ -76,7 +77,7 @@ class FHIR :
 	# 	for a single patient
 	#	
 	##########################################
-		mod = 'download_data.py:hackathonFHIR:getPatient'
+		mod = 'download_data.py:FHIR:getPatient'
 		addon = 'Patient/' + UID
 		url1 = self.url + addon
 
@@ -90,13 +91,44 @@ class FHIR :
 	# 	for a single patient
 	#	
 	##########################################
-		mod = 'download_data.py:hackathonFHIR:getCondition'
+		mod = 'download_data.py:FHIR:getCondition'
 		addon = 'Condition?patient=' + PID
 		url1 = self.url + addon
 
 		import requests
 		response = requests.request("GET", url1, headers=self.headers)
 		return  response.text
+
+	def getConditions(self, site, cond) :
+	######################################
+	# Purpose: dump Condition resources 
+	# 	that match site and condition
+	#	
+	# https://smilecdr.com/docs/current/tutorial_and_tour/fhir_search_queries.html
+	##########################################
+		mod = 'download_data.py:FHIR:getCondition'
+		#addon = 'Condition?_bodySite=' + site + '&_content=' + cond		# gives odd results
+		addon = 'Condition?_content=' + site + '&_content=' + cond
+		url1 = self.url + addon
+
+		#print (mod, url1)
+		import requests, json
+		response = requests.request("GET", url1, headers=self.headers)
+		return  json.loads(response.text)
+
+	def getImagingStudy (self, ID):
+	######################################
+	# Purpose: return teh imagingStudy FHIR object for 
+	#  the indicated ID
+	#
+	########################################
+		mod = 'download_data.py:FHIR:getImagingStudy'
+		addon = 'ImagingStudy?_id=' + ID
+		url1 = self.url + addon
+
+		import requests, json
+		response = requests.request("GET", url1, headers=self.headers)
+		return  json.loads(response.text)
 
 
 	def getReports(self, PID):
@@ -105,13 +137,13 @@ class FHIR :
 	# 	for a single patient
 	#	
 	##########################################
-		mod = 'download_data.py:hackathonFHIR:getReports'
+		mod = 'download_data.py:FHIR:getReports'
 		addon = 'DiagnosticReport?patient=' + PID
 		url1 = self.url + addon
 
-		import requests
+		import requests, json
 		response = requests.request("GET", url1, headers=self.headers)
-		return  response.text
+		return  json.loads(response.text)
 
 	def getReport(self, PID, RID):
 	######################################
@@ -119,7 +151,7 @@ class FHIR :
 	# 	for a single patient
 	#	
 	##########################################
-		mod = 'download_data.py:hackathonFHIR:getReport'
+		mod = 'download_data.py:FHIR:getReport'
 		addon = 'Patient/' + PID + '/' + RID
 		url1 = self.url + addon
 
@@ -174,6 +206,7 @@ class DCMweb :
 		# https://docs.google.com/spreadsheets/d/e/2PACX-1vSBEymDKGZgskFEFF6yzge5JovGHPK_FIbEnW5a6SWUbPkX06tkoObUHh6T1XQhgj-HqFd0AWSnVFOv/pubhtml?gid=1094535210&single=true
 
 		addon = 'patients/'
+
 		url1 = self.url + addon
 
 		import requests
@@ -235,8 +268,8 @@ class DCMweb :
 			resp = resp[resp.find('E-Version:') + 18: ]
 			resp = resp[: resp.find(token)]
 		except :
-			print mod + ' study ' + UID 
-			print ' not found on ' + self.url
+			print( mod + ' study ' + UID )
+			print( ' not found on ' + self.url )
 			err = 1
 			resp = 1
 
@@ -267,7 +300,7 @@ class DCMweb :
 					array.append(UID)
 					i = i +1
 		except :
-			a = 2
+			pass
 
 		return array
 
@@ -290,20 +323,105 @@ class DCMweb :
 		buf2 = buf[buf.find('http'):buf.find('instance')] 
 		return buf2
 
-	def getStudies(self):
+	def getSeries(self, rootDir, UID, ID):
 	######################################
-	# Purpose: dunmp a list of all studies
-	#	on the VNA
+	# Purpose: get the instances for indicated
+	#	series
 	#
+	# UID = study UID
+	# ID = series UID
 	#####################################
-		mod = 'download_data.py:DCMweb:getStudies'
-		addon = 'studies/' 
+		mod = 'download_data.py:DCMweb:getSeries'
+		import requests, json, os, subprocess, math, mmap
+		import dicom as pydicom
+	
+		addon = 'studies/' + UID + '/series/' + ID 
 		url1 = self.url + addon
+		err = 0
+		hdr = {
+    		'Content-Type':'multipart/related; type=image/dicom',
+    		'apikey': self.api_key 
+    		}
 
-		import requests, json
-		response = requests.request("GET", url1, headers=self.headers)
-		buf =  json.loads(response.text)
-		return buf
+		# make Study folder 
+		cwd = subprocess.check_output(['pwd'])			# save current working dir
+		projectDir = rootDir + UID 
+		if not os.path.isdir(projectDir)  :	os.system('mkdir ' + projectDir)
+		os.system('cd ' + projectDir)
+
+		# make Series folder 
+		projectDir = projectDir + '/' + ID
+		if not os.path.isdir(projectDir)  :	os.system('mkdir ' + projectDir)
+		os.system('cd ' + projectDir)
+
+		# now get raw multi-part DICOM series
+		r = requests.request("GET", url1, headers=hdr)
+		ret = r.content	
+		if not '200' in r :
+			print (mod + ' study '  + UID + ' not found')
+			return 1, ret
+		else :
+			with open(projectDir + '/series.raw', 'wb') as fp: fp.write(ret)
+			fp.close()
+
+		# now unpack the raw into its component files
+		outdir = projectDir
+		with open (projectDir + '/series.raw', 'rb') as f:
+		  while True:
+			try:
+			  # print("Reading Line...")
+			  mime_type = ""
+			  payload_length = 0
+			  text_in = f.readline()
+			  # print(f"text_in has {len(text_in)} bytes")
+			except Exception as exc:
+			  print('Exception Occurred: ', type(exc),  exc)
+			  break
+			else:
+			  if ( len(text_in) < 1 ):
+				# End of File has been reached
+				break
+			  line = text_in.decode("latin-1").rstrip()
+			  while ( len(line) > 0 ):
+				print('Line is ', line)
+				mimeparts = line.partition(":")
+				print("MIME:  ", mimeparts[0].strip(),  mimeparts[2].strip())
+				line = f.readline().decode("latin-1").rstrip()
+				if ( mimeparts[0] == "Content-Type" ):
+				  mime_type = mimeparts[2]
+				if ( mimeparts[0] == "Content-Length" ):
+				  payload_length = int(mimeparts[2])
+			  if ( "multipart" in mime_type ):
+				pass
+			  elif payload_length > 0:
+				# Done with text portion, read the binary data
+				print("Line <", line, "> has ", len(line), " characters.")
+				print("MimeType: ", mime_type, payload_length)
+				current_offset = f.tell()
+				print("File Offset = ", current_offset)
+				blocksize = mmap.ALLOCATIONGRANULARITY
+				allocationsize = payload_length + blocksize
+				mapoffset = int(math.floor(current_offset / blocksize)) * blocksize;
+				dcm_offset = current_offset % blocksize
+				print("mmap allocation size: ", blocksize)
+				print('  Need ' + str(allocationsize) + ' allocated with file offset of ' + str(mapoffset))
+				print('  Seek will be to ' , dcm_offset)
+				#with mmap.mmap(f.fileno(), payload_length + dcm_offset, access=mmap.ACCESS_READ, offset=mapoffset) as dcm:
+				dcm = mmap.mmap(f.fileno(), payload_length + dcm_offset, access=mmap.ACCESS_READ, offset=mapoffset)
+				if ( dcm is not None ):
+					dcm.seek(dcm_offset)
+					try:
+						ds = pydicom.dcmread(dcm)
+					except AttributeError:
+						ds = pydicom.read_file(dcm)
+					sopValue = ds.SOPInstanceUID + ".dcm"
+					print("Writing File:  ", sopValue)
+					pydicom.filewriter.write_file(os.path.join(outdir, sopValue),ds)
+					dcm.close()
+				f.seek(current_offset + payload_length)
+
+		os.system('cd ' + cwd)		# restore to original dir
+		return err, 1
 
 
 class tcia :
@@ -428,29 +546,28 @@ if __name__ == '__main__':
 	import os, zipfile
 	from download_data import tcia
 	os.system('clear')
-	print "-----------------------"
+	print( "-----------------------" )
 
 	# FHIR tests
 	source = FHIR('hackFHIR')
-	#ret = source.getPatient('siimjoe')
-	#ret = source.getCondition('siimjoe')
+	ret = source.getConditions('breast', 'cancer')
+	#ret = source.getReports('siimsally')
+	ret = source.getImagingStudy ('a361814883895900')
 
 
 	# DICOMweb tests
 	source = DCMweb('hackDCM')
-	study = '1.2.276.0.7230010.3.1.2.8323329.7070.1517875202.604896'					
-	series = '1.2.276.0.7230010.3.1.3.8323329.7070.1517875202.604895'
+	study = '1.3.6.1.4.1.14519.5.2.1.3344.4008.125504002793589756520454024858'
+	series = '1.3.6.1.4.1.14519.5.2.1.3344.4008.148980208326933636157816770243'
 	study2 = '1.2.276.0.7230010.3.1.2.8323329.11171.1517875231.515224'
 	series2 = '1.2.276.0.7230010.3.1.3.8323329.11171.1517875231.515223'
-	#ret = source.getSeriesUIDs(study2)
-	#ret = source.getSeriesURL('1.3.6.1.4.1.14519.5.2.1.7777.9002.695251996732711525695705170858', '1.3.6.1.4.1.14519.5.2.1.7777.9002.605176515924083114740918850709')	
-	#ret = source.getStudies()
-	err, ret = source.getImage(study2, series2)
-	if err :
-		print 'fatal error - exiting'
-	else :
-		with open('/home/sgl02/code/py-code/mlcBuilder/img2.dcm', 'wb') as fp: fp.write(ret)
-		fp.close()
+	#err, ret = source.getSeries('./', study, series)
+	#if err :
+	#	print( 'fatal error - exiting' )
+	#else :
+		# not adjusted yet for more then one file
+	#	with open('./mlcBuilder/img2.dcm', 'wb') as fp: fp.write(ret)
+	#	fp.close()
 
 	# TCIA API tests
 	#source = tcia('tcia')
@@ -460,7 +577,8 @@ if __name__ == '__main__':
 	#with open('img.dcm', 'wb') as fp: fp.write(resp)
 	#fp.close()
 
-	print ret
+	#print( ret['entry'][0]['resource'] )
+	print (ret['entry'][0])
 	exit (0)
 
 
